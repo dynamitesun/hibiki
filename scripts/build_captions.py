@@ -76,18 +76,56 @@ def parse_vtt(text):
     return cues
 
 
-def fetch_subs(vid):
+DEBUG = []
+CLIENTS = ["default", "tv", "web_embedded", "mweb", "android_vr", "transcript_api"]
+WORKING = []  # the method that worked last, tried first
+
+
+def _ytdlp(vid, client):
     os.makedirs(TMP, exist_ok=True)
     for f in glob.glob(os.path.join(TMP, vid + "*")):
         os.remove(f)
-    subprocess.run(["yt-dlp", "--skip-download", "--write-subs", "--write-auto-subs", "--sub-langs", "ja,ja-JP,ja-orig",
-                    "--sub-format", "vtt", "--no-warnings", "--sleep-requests", "1",
-                    "-o", os.path.join(TMP, "%(id)s.%(ext)s"), f"https://www.youtube.com/watch?v={vid}"],
-                   capture_output=True, text=True, timeout=120)
+    cmd = ["yt-dlp", "--skip-download", "--write-subs", "--write-auto-subs", "--sub-langs", "ja,ja-JP,ja-orig",
+           "--sub-format", "vtt", "--no-warnings", "--sleep-requests", "1",
+           "-o", os.path.join(TMP, "%(id)s.%(ext)s"), f"https://www.youtube.com/watch?v={vid}"]
+    if client != "default":
+        cmd[1:1] = ["--extractor-args", f"youtube:player_client={client}"]
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     files = sorted(glob.glob(os.path.join(TMP, vid + "*.vtt")), key=lambda p: ("orig" in p, len(p)))
     if not files:
-        return []
-    return parse_vtt(open(files[0], encoding="utf-8").read())
+        return None, (r.stderr or r.stdout)[-300:]
+    return parse_vtt(open(files[0], encoding="utf-8").read()), ""
+
+
+def _transcript_api(vid):
+    try:
+        from youtube_transcript_api import YouTubeTranscriptApi
+        api = YouTubeTranscriptApi()
+        t = api.fetch(vid, languages=["ja", "ja-JP"])
+        cues, last = [], ""
+        for sn in t:
+            line = re.sub(r"\[[^\]]*\]", "", sn.text.replace("\n", " ")).strip()
+            if line and line != last:
+                cues.append([round(sn.start, 2), round(sn.start + sn.duration, 2), line]); last = line
+        return cues, ""
+    except Exception as e:
+        return None, f"{type(e).__name__}: {str(e)[:250]}"
+
+
+def fetch_subs(vid):
+    order = WORKING + [c for c in CLIENTS if c not in WORKING]
+    for client in order:
+        cues, err = _transcript_api(vid) if client == "transcript_api" else _ytdlp(vid, client)
+        if cues is not None:
+            if client not in WORKING[:1]:
+                WORKING[:] = [client]
+                DEBUG.append(f"{vid}: worked with {client}")
+            return cues
+        if len(DEBUG) < 40:
+            DEBUG.append(f"{vid} [{client}] {err.strip()}")
+        if WORKING:  # a method worked before; this video probably just has no Japanese subtitles
+            break
+    return []
 
 
 # ---------------------------------------------------------------- words
@@ -157,7 +195,8 @@ def main():
             for vid, title in list_playlist(pid, n):
                 if vid in index:
                     index[vid]["lv"] = ch["lv"]
-                    continue
+                    if index[vid].get("n") or index[vid].get("tries", 0) >= 3:
+                        continue
                 todo.append((vid, title, ch["lv"], short))
         queues.append(todo)
         print(f"{ch['name']}: {len(todo)} new")
@@ -176,10 +215,11 @@ def main():
         rec = {"title": title, "tw": words(title) if title else [],
                "cues": [[s, e, words(line)] for s, e, line in cues]}
         json.dump(rec, open(os.path.join(CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-        index[vid] = {"lv": lv, "short": short, "n": len(cues)}
+        index[vid] = {"lv": lv, "short": short, "n": len(cues), "tries": index.get(vid, {}).get("tries", 0) + (0 if cues else 1)}
         print(f"  {vid}: {len(cues)} lines  {title[:40]}")
         time.sleep(0.5)
     json.dump(index, open(idx_path, "w"), separators=(",", ":"))
+    open(os.path.join(DATA, "debug.txt"), "w").write("\n".join(DEBUG) + f"\nworking method: {WORKING}\n")
     print(f"processed {done}, index size {len(index)}, with subtitles {sum(1 for v in index.values() if v['n'])}")
 
 

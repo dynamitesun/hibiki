@@ -20,11 +20,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install -U yt-dlp janome
+      - run: pip install -U yt-dlp janome youtube-transcript-api
       - name: Fetch subtitles and split into words
         run: python scripts/build_captions.py
         env:
-          BUDGET: '150'
+          BUDGET: '60'
       - name: Save results
         run: |
           git config user.name "hibiki-bot"
