@@ -90,6 +90,22 @@ nav.tabs button{font-size:10.5px}
 .vmeta{padding:10px 14px 12px}.vtitle{font-weight:700;font-size:15px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:1.4em}.vsrc{font-size:13px;color:var(--muted);margin-top:2px}
 .acts.light .act{background:var(--card);color:var(--ink);border:1px solid var(--line)}.acts.light .act.hot{background:var(--red);color:#fff;border-color:var(--red)}
 .spin{margin:0 auto 12px}
+/* word picker */
+.swlines{display:grid;gap:8px;margin-top:12px}
+.swline{display:flex;gap:8px;padding:10px;border-radius:14px;background:var(--paper);border:1px solid var(--line);opacity:.7}
+.swline.cur{opacity:1;border-color:var(--gold)}
+.swts{font-size:11px;color:var(--muted);padding-top:8px;min-width:30px;font-variant-numeric:tabular-nums}
+.swline>div{display:flex;flex-wrap:wrap;align-items:flex-end;gap:4px 2px}
+.wplain{font-family:'Klee One',serif;font-size:18px;padding:4px 1px;color:var(--muted)}
+.wchip{position:relative;display:inline-flex;flex-direction:column;align-items:center;font-family:'Klee One',serif;font-size:19px;line-height:1.5;padding:2px 8px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--card)}
+.wchip rt{font-size:.5em}
+.wchip .ww{white-space:nowrap}
+.wchip small{font-family:'Zen Kaku Gothic New',sans-serif;font-size:10px;color:var(--muted);max-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.wchip.on{border-color:var(--green);background:color-mix(in srgb,var(--green) 12%,var(--card))}
+.wchip i{position:absolute;top:-7px;right:-6px;font-style:normal;font-size:11px;background:var(--green);color:#fff;border-radius:99px;width:17px;height:17px;display:grid;place-items:center}
+.swwrap{display:flex;flex-wrap:wrap;gap:6px}
+.swtype{margin-top:14px}.swtype summary{font-weight:700;color:var(--muted);font-size:14px;cursor:pointer}
+.btn:disabled{opacity:.4}
 /* ===== sheets & pages ===== */
 .ov{position:fixed;inset:0;background:var(--paper);z-index:20;display:none;overflow-y:auto}
 .ov.open{display:block}
@@ -151,7 +167,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='10';
+const APP_VERSION='11';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -321,7 +337,7 @@ function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (n
 let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
 const fresh=src=>{const c=S.lists[src.list];return c&&Date.now()-c.t<DAY};
 async function gatherLists(srcs,onBatch){ // cached channels show instantly; up to 10 new ones are fetched per session
-  const lists=[],add=(s,ids)=>{if(ids&&ids.length)lists.push({s,ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})};
+  const lists=[],add=(s,ids)=>{if(ids&&ids.length){const fresh=ids.filter(id=>!S.seen[id]);lists.push({s,ids:shuffle(fresh.filter(hasWords)).concat(shuffle(fresh.filter(id=>!hasWords(id))),shuffle(ids.filter(id=>S.seen[id])))})}};
   const cached=srcs.filter(fresh),todo=shuffle(srcs.filter(x=>!fresh(x))).slice(0,10);
   cached.forEach(x=>add(x,S.lists[x.list].ids));
   if(lists.length)onBatch(lists,false);
@@ -519,17 +535,74 @@ function saveWordSheet(i){ // from the Shorts feed
   try{FP&&FP.i===i&&FP.p.pauseVideo()}catch(e){}
   openSaveSheet(it,t,()=>{try{FP&&FP.p.playVideo()}catch(e){}});
 }
+/* ---- words from the video (prepared daily by the "Build video words" job into data/) ---- */
+let CAPIDX={};const CAPS=new Map();
+fetch('data/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():{}).then(j=>{CAPIDX=j||{}}).catch(()=>{});
+const hasWords=id=>CAPIDX[id]&&CAPIDX[id].n>0;
+function loadCap(id){
+  if(CAPS.has(id))return Promise.resolve(CAPS.get(id));
+  return fetch('data/cap/'+id+'.json').then(r=>r.ok?r.json():null).catch(()=>null).then(j=>{CAPS.set(id,j);return j});
+}
+const CONTENT=new Set(['n','v','a','adv','na','int','adn','conj','pre','o']);
+function furiW(s,r){ // reading over kanji only
+  if(!r||!/[一-鿿々]/.test(s)||r===s)return esc(s);
+  const runs=s.match(/[一-鿿々〆]+|[^一-鿿々〆]+/g);
+  try{const re=new RegExp('^'+runs.map(x=>/[一-鿿々〆]/.test(x[0])?'(.+?)':x.replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60)).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('')+'$');
+    const m=r.match(re);if(m){let g=1;return runs.map(x=>/[一-鿿々〆]/.test(x[0])?`<ruby>${esc(x)}<rt>${m[g++]}</rt></ruby>`:esc(x)).join('')}}catch(e){}
+  return `<ruby>${esc(s)}<rt>${esc(r)}</rt></ruby>`;
+}
+function basicWords(text){ // fallback when a video hasn't been processed yet
+  return (text.match(/[一-鿿々〆]+[ぁ-ゖ]{0,3}|[ァ-ヺー]{2,}|[ぁ-ゖ]{2,}/g)||[]).filter((w,i,a)=>a.indexOf(w)===i).slice(0,16).map(w=>[w,'',w,'','n']);
+}
+let SW=null; // current save-word state
 function openSaveSheet(it,t,resume){
-  pendingSave={it,t,resume};
-  openSheet(`<b style="font-size:19px">Save a word from this clip</b>
-  <div class="muted" style="font-size:14px;margin-top:2px">${t?`At ${fmt(t)} — the review card will replay this moment.`:'Start the video first to save the exact moment.'}</div>
-  <label>Word you heard or saw in the captions</label><input id="sw-word" class="jp" style="font-size:22px" placeholder="例: 電車" autocomplete="off" lang="ja">
-  <div class="row" style="margin-top:8px"><a class="btn grow" id="sw-jisho" href="https://jisho.org" target="_blank" rel="noopener">📖 Look it up on Jisho ↗</a></div>
-  <label>Meaning (optional)</label><input id="sw-note" placeholder="e.g. train" autocomplete="off">
-  <button class="btn primary wide" style="margin-top:14px" data-act="dosave">Save word</button>
-  <button class="btn wide" style="margin-top:8px" data-act="resumefeed">Keep watching</button>`);
-  const w=$('#sw-word');w.addEventListener('input',()=>{$('#sw-jisho').href='https://jisho.org/search/'+encodeURIComponent(w.value.trim())});
-  setTimeout(()=>w.focus(),250);
+  pendingSave={it,t,resume};SW={it,t,rec:null,ci:-1};
+  openSheet(`<div id="swbody"><b style="font-size:19px">Words from this clip</b><div class="muted" style="margin-top:8px">Loading words…</div></div>`);
+  loadCap(it.id).then(rec=>{if(!SW||SW.it!==it)return;SW.rec=rec;
+    if(rec&&rec.cues&&rec.cues.length){let i=rec.cues.findIndex(c=>c[0]>t+0.3);i=(i<0?rec.cues.length:i)-1;SW.ci=Math.max(0,i)}
+    renderSW()});
+}
+function chipHTML(w,src){
+  const on=!!S.saved[w[2]];
+  return `<button class="wchip ${on?'on':''}" data-act="pickw" data-src="${src}"><span class="ww">${furiW(w[0],w[1])}</span>${w[3]?`<small>${esc(w[3].split(';')[0].slice(0,28))}</small>`:''}${on?'<i>✓</i>':''}</button>`;
+}
+function lineHTML2(ws,ci){
+  return ws.map((w,j)=>CONTENT.has(w[4])?chipHTML(w,`c:${ci}:${j}`):`<span class="wplain">${esc(w[0])}</span>`).join('');
+}
+function renderSW(){
+  const {it,t,rec}=SW;const el=$('#swbody');if(!el)return;
+  let h=`<b style="font-size:19px">Tap a word to save it</b><div class="muted" style="font-size:13px;margin-top:2px">${t?`From ${fmt(t)} — the review card will replay this moment.`:'Words from this video.'}</div>`;
+  if(rec&&rec.cues&&rec.cues.length){
+    const lo=Math.max(0,SW.ci-2),hi=Math.min(rec.cues.length-1,SW.ci);
+    h+=`<div class="swlines">${rec.cues.slice(lo,hi+1).map((c,k)=>`<div class="swline ${lo+k===SW.ci?'cur':''}"><span class="swts">${fmt(c[0])}</span><div>${lineHTML2(c[2],lo+k)}</div></div>`).join('')}</div>
+    <div class="row" style="margin-top:8px"><button class="btn grow" data-act="swprev" ${SW.ci<=0?'disabled':''}>◀ Earlier</button><button class="btn grow" data-act="swnext" ${SW.ci>=rec.cues.length-1?'disabled':''}>Later ▶</button></div>`;
+  }else{
+    h+=`<div class="card" style="margin-top:10px;padding:12px;font-size:14px"><b>Subtitles for this video aren't ready yet.</b><div class="muted">They're prepared once a day. Until then, pick from the title or type a word below.</div></div>`;
+  }
+  const tw=(rec&&rec.tw&&rec.tw.length?rec.tw:basicWords(S.titles[it.id]||'')).filter(w=>CONTENT.has(w[4]));
+  SW.tw=tw;
+  if(tw.length)h+=`<label>From the title</label><div class="swwrap">${tw.map((w,j)=>chipHTML(w,`t:${j}`)).join('')}</div>`;
+  h+=`<div id="swdetail"></div>
+  <details class="swtype"><summary>Type a different word</summary>
+   <input id="sw-word" class="jp" style="font-size:20px;margin-top:8px" placeholder="例: 電車" autocomplete="off" lang="ja">
+   <input id="sw-note" style="margin-top:8px" placeholder="Meaning (optional)" autocomplete="off">
+   <div class="row" style="margin-top:8px"><a class="btn grow" id="sw-jisho" href="https://jisho.org" target="_blank" rel="noopener">Jisho ↗</a><button class="btn primary grow" data-act="dosave">Save</button></div></details>
+  <button class="btn wide" style="margin-top:12px" data-act="resumefeed">Keep watching</button>`;
+  el.innerHTML=h;
+  const w=$('#sw-word');w&&w.addEventListener('input',()=>{$('#sw-jisho').href='https://jisho.org/search/'+encodeURIComponent(w.value.trim())});
+}
+function pickWord(src){
+  const [kind,a,b]=src.split(':');let w,cue=null;
+  if(kind==='c'){cue=SW.rec.cues[+a];w=cue[2][+b]}else w=SW.tw[+a];
+  if(!w)return;
+  const key=w[2]||w[0],ex=S.saved[key];
+  if(ex){delete S.saved[key];save();toast('Removed');renderSW();renderTabs();return}
+  const t=SW.t,line=cue?cue[2].map(x=>x[0]).join(''):(S.titles[SW.it.id]||'');
+  S.saved[key]={lvl:0,due:Date.now(),added:Date.now(),l:key,s:w[0],r:w[1],note:w[3]||'',p:w[4],vid:SW.it.id,
+    t0:cue?Math.max(0,cue[0]-0.4):Math.max(0,t-4),t1:cue?cue[1]+0.4:t+1.5,line,title:S.titles[SW.it.id]||'',srcName:SW.it.src.name};
+  const grew=[...new Set([...key].filter(isK))].find(k=>Object.values(S.saved).filter(x=>x.l.includes(k)).length===2);
+  save();renderTabs();renderSW();
+  $('#swdetail').innerHTML=`<div class="card" style="margin-top:12px;padding:12px"><div class="row"><div class="grow"><div class="jp" style="font-size:26px">${furiW(w[0],w[1])}</div>${key!==w[0]?`<div class="muted" style="font-size:13px">dictionary form <span class="jp">${esc(key)}</span></div>`:''}</div><a class="tg" href="https://jisho.org/search/${encodeURIComponent(key)}" target="_blank" rel="noopener">Jisho ↗</a></div><div style="font-weight:700;margin-top:4px">${esc(w[3]||'Tap Jisho for the meaning')}</div><div class="muted" style="font-size:13px;margin-top:4px">✓ Saved${grew?` · new kanji family: ${grew} 🎉`:''}</div></div>`;
 }
 function doSave(){
   const word=$('#sw-word').value.trim();if(!word){toast('Type the word first');return}
@@ -541,8 +614,8 @@ function doSave(){
 }
 function savedSheet(k){
   const w=S.saved[k];if(!w)return;const kanji=[...new Set([...w.l].filter(isK))];
-  openSheet(`<div class="wbig">${esc(w.l)}</div><div style="font-size:19px;font-weight:700;margin-top:4px">${esc(w.note||'No meaning saved yet')}</div>
-  <div class="fact" style="display:block"><span style="display:block">Heard in</span><div style="margin-top:4px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div></div>
+  openSheet(`<div class="wbig">${w.s?furiW(w.s,w.r):esc(w.l)}</div>${w.s&&w.s!==w.l?`<div class="muted">dictionary form <span class="jp">${esc(w.l)}</span></div>`:''}<div style="font-size:19px;font-weight:700;margin-top:4px">${esc(w.note||'No meaning saved yet')}</div>
+  <div class="fact" style="display:block"><span style="display:block">Heard in</span>${w.line?`<div class="jp" style="margin-top:4px;font-size:17px">${esc(w.line)}</div>`:''}<div class="muted" style="margin-top:4px;font-size:13px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div></div>
   ${kanji.length?`<div class="seeds" style="margin-top:8px">${kanji.map(c=>`<a class="kchip" href="https://jisho.org/search/${encodeURIComponent(c)}%20%23kanji" target="_blank" rel="noopener"><b>${c}</b>kanji ↗</a>`).join('')}</div>`:''}
   <a class="btn wide" style="margin-top:10px" href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener">📖 Jisho ↗</a>
   <button class="btn primary wide" style="margin-top:8px" data-act="playclip" data-k="${esc(w.l)}">▶ Replay the clip</button>
@@ -566,9 +639,10 @@ function renderReview(){
   if(!$('#rvid')){b.innerHTML=`<div class="ov-top"><button class="x" data-act="closer">✕</button><div class="grow" style="height:8px;border-radius:9px;background:var(--line);overflow:hidden"><i id="rbar" style="display:block;height:100%;background:var(--red)"></i></div><span class="muted" id="rcount" style="font-size:13px;font-weight:700"></span></div><div class="vwrap"><div id="rvid"></div></div><div class="pad" id="rcard"></div>`}
   $('#rbar').style.width=(R.i/R.q.length*100)+'%';$('#rcount').textContent=`${R.i+1}/${R.q.length}`;
   $('#rcard').innerHTML=`<div class="rv-card"><div class="muted" style="font-size:13px;font-weight:700">${R.single?'Your word':'Listen to the clip — what does this mean?'}</div>
-   <div class="rv-word">${esc(w.l)}</div>
+   <div class="rv-word">${R.shown&&w.s?furiW(w.s,w.r):esc(w.s||w.l)}</div>${R.shown&&w.s&&w.s!==w.l?`<div class="muted">dictionary form <span class="jp">${esc(w.l)}</span></div>`:''}
    ${R.shown?`<div style="font-size:21px;font-weight:700">${esc(w.note||'(no meaning saved)')}</div><a href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener" style="font-size:14px">Jisho ↗</a>`:''}
-   <div class="muted" style="font-size:13px;margin-top:10px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div>
+   ${w.line?`<div class="jp" style="font-size:17px;margin-top:10px;background:var(--paper);border-radius:12px;padding:8px 10px">${esc(w.line).split(esc(w.s||w.l)).join(`<b style="color:var(--red)">${esc(w.s||w.l)}</b>`)}</div>`:''}
+   <div class="muted" style="font-size:13px;margin-top:8px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div>
    <button class="tg" style="margin-top:10px" data-act="rplay">▶ Replay clip</button></div>
   ${R.single?'':R.shown?`<div class="grades">${[['again','Again','ag'],['hard','Hard',''],['good','Good','gd'],['easy','Easy','']].map(([g,l,c])=>`<button class="${c}" data-act="grade" data-g="${g}">${l}<small>${rel(IV[nextLvl(w,g)]*36e5)}</small></button>`).join('')}</div>`:`<button class="btn primary wide" style="margin-top:12px" data-act="reveal">Show answer</button>`}`;
   if(!R.loaded){R.loaded=1;playClip(w)}
@@ -593,6 +667,9 @@ document.addEventListener('click',e=>{
     case 'back5':if(FP&&FP.i===+d.i){try{FP.p.seekTo(Math.max(0,fpTime()-5),true);FP.p.playVideo()}catch(_){}}break;
     case 'slow':S.rate=S.rate===1?.75:S.rate===.75?.5:1;save();document.querySelectorAll('.act .rl').forEach(x=>x.textContent=S.rate===1?'Slower':S.rate+'×');try{FP&&FP.p.setPlaybackRate(S.rate)}catch(_){}try{VP&&vpReady&&VP.setPlaybackRate(S.rate)}catch(_){}toast('Speed '+S.rate+'×');break;
     case 'dosave':doSave();break;
+    case 'pickw':pickWord(d.src);break;
+    case 'swprev':if(SW&&SW.ci>0){SW.ci--;renderSW()}break;
+    case 'swnext':if(SW&&SW.rec&&SW.ci<SW.rec.cues.length-1){SW.ci++;renderSW()}break;
     case 'resumefeed':closeSheet();pendingSave&&pendingSave.resume&&pendingSave.resume();break;
     case 'openvid':openVid(+d.i);break;
     case 'closevid':closeVid();break;
