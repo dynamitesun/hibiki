@@ -89,6 +89,8 @@ def _ytdlp(vid, client):
            "-o", os.path.join(TMP, "%(id)s.%(ext)s"), f"https://www.youtube.com/watch?v={vid}"]
     if client != "default":
         cmd[1:1] = ["--extractor-args", f"youtube:player_client={client}"]
+    if os.path.exists(COOKIES):
+        cmd[1:1] = ["--cookies", COOKIES]
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
     files = sorted(glob.glob(os.path.join(TMP, vid + "*.vtt")), key=lambda p: ("orig" in p, len(p)))
     if not files:
@@ -111,7 +113,13 @@ def _transcript_api(vid):
         return None, f"{type(e).__name__}: {str(e)[:250]}"
 
 
+BLOCKED = {"fails": 0}
+COOKIES = os.path.join(ROOT, ".tmp_cookies.txt")
+
+
 def fetch_subs(vid):
+    if BLOCKED["fails"] >= 3 and not WORKING:
+        return []  # YouTube is blocking this machine; don't waste the run
     order = WORKING + [c for c in CLIENTS if c not in WORKING]
     for client in order:
         cues, err = _transcript_api(vid) if client == "transcript_api" else _ytdlp(vid, client)
@@ -124,6 +132,10 @@ def fetch_subs(vid):
             DEBUG.append(f"{vid} [{client}] {err.strip()}")
         if WORKING:  # a method worked before; this video probably just has no Japanese subtitles
             break
+    if not WORKING:
+        BLOCKED["fails"] += 1
+        if BLOCKED["fails"] == 3:
+            DEBUG.append("YouTube is blocking subtitle downloads from this machine; skipping subtitles this run. Add a YT_COOKIES secret to fix.")
     return []
 
 
@@ -190,6 +202,9 @@ def words(text):
 # ---------------------------------------------------------------- main
 def main():
     os.makedirs(CAP, exist_ok=True)
+    if os.environ.get("YT_COOKIES", "").strip():
+        open(COOKIES, "w").write(os.environ["YT_COOKIES"])
+        DEBUG.append("using YouTube cookies")
     idx_path = os.path.join(DATA, "index.json")
     index = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
     load_dict()
@@ -201,7 +216,7 @@ def main():
             for vid, title in list_playlist(pid, n):
                 if vid in index:
                     index[vid]["lv"] = ch["lv"]
-                    if index[vid].get("n") or index[vid].get("tries", 0) >= 3:
+                    if index[vid].get("n") or (index[vid].get("tries", 0) >= 3 and index[vid].get("g")):
                         continue
                 todo.append((vid, title, ch["lv"], short))
         queues.append(todo)
@@ -221,7 +236,7 @@ def main():
         rec = {"title": title, "tw": words(title) if title else [],
                "cues": [[s, e, words(line)] for s, e, line in cues]}
         json.dump(rec, open(os.path.join(CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-        index[vid] = {"lv": lv, "short": short, "n": len(cues), "tries": index.get(vid, {}).get("tries", 0) + (0 if cues else 1)}
+        index[vid] = {"lv": lv, "short": short, "n": len(cues), "tries": index.get(vid, {}).get("tries", 0) + (0 if cues else 1), "g": bool(DICT)}
         print(f"  {vid}: {len(cues)} lines  {title[:40]}")
         time.sleep(0.5)
     json.dump(index, open(idx_path, "w"), separators=(",", ":"))

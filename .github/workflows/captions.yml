@@ -24,7 +24,8 @@ jobs:
       - name: Fetch subtitles and split into words
         run: python scripts/build_captions.py
         env:
-          BUDGET: '60'
+          BUDGET: '250'
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Save results
         run: |
