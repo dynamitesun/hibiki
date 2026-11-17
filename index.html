@@ -2,26 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<title>Hibiki — Learn Japanese from YouTube</title>
+<meta name="theme-color" content="#111">
+<title>Hibiki — Learn Japanese from real videos</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{--paper:#f6f0e4;--card:#fffaf0;--ink:#1f1b16;--muted:#7a6e5e;--line:#e5dac6;--red:#c63d2b;--red-soft:#f6ddd5;--gold:#b8892a;--gold-soft:#f5e6bf;--green:#3f7d4e;--shadow:0 1px 0 rgba(60,40,10,.05),0 6px 18px -8px rgba(60,40,10,.18)}
+:root{--paper:#f6f0e4;--card:#fffaf0;--ink:#1f1b16;--muted:#7a6e5e;--line:#e5dac6;--red:#c63d2b;--red-soft:#f6ddd5;--gold:#b8892a;--gold-soft:#f5e6bf;--green:#3f7d4e;--shadow:0 1px 0 rgba(60,40,10,.05),0 6px 18px -8px rgba(60,40,10,.18);--nav:64px}
 @media (prefers-color-scheme:dark){:root{--paper:#15120e;--card:#201c17;--ink:#f2eadc;--muted:#a69a87;--line:#352e25;--red:#e2604c;--red-soft:#3a201a;--gold:#d8aa4a;--gold-soft:#3a2f17;--green:#79b884;--shadow:0 1px 0 rgba(0,0,0,.3),0 8px 20px -10px rgba(0,0,0,.6)}}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--paper);color:var(--ink)}
+html,body{margin:0;background:var(--paper);color:var(--ink);overscroll-behavior:none}
 body{font-family:'Zen Kaku Gothic New',system-ui,sans-serif;font-size:16px;line-height:1.45}
 .jp{font-family:'Klee One','Hiragino Mincho ProN',serif}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
-input,textarea,select{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;outline:none}
-textarea{min-height:120px;resize:vertical;font-size:14px}
-input:focus,textarea:focus{border-color:var(--gold)}
+input{font:inherit;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;outline:none}
+input:focus{border-color:var(--gold)}
 label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px}
 a{color:var(--red)}
-#app{max-width:560px;margin:0 auto;padding:16px 16px calc(96px + env(safe-area-inset-bottom))}
+#app{max-width:560px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 16px calc(var(--nav) + 30px + env(safe-area-inset-bottom))}
 header.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
 .brand{display:flex;align-items:center;gap:10px}
 .mark{width:38px;height:38px;border-radius:12px;background:var(--red);color:#fff;display:grid;place-items:center;font-size:22px}
@@ -30,536 +30,394 @@ header.top{display:flex;align-items:center;justify-content:space-between;margin:
 h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:24px 2px 10px;font-weight:700}
 .card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
 .muted{color:var(--muted)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:14px;font-weight:700;background:var(--paper);border:1px solid var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 18px;border-radius:14px;font-weight:700;background:var(--paper);border:1px solid var(--line);text-decoration:none;color:var(--ink)}
 .btn.primary{background:var(--red);border-color:var(--red);color:#fff}
 .btn.wide{width:100%;padding:15px}
-.btn:active{transform:scale(.98)}
 .row{display:flex;align-items:center;gap:12px}.grow{flex:1;min-width:0}
-.feed{display:grid;gap:14px}
-.vid{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
-.thumb{position:relative;aspect-ratio:16/9;background:#000 center/cover no-repeat}
-.thumb .play{position:absolute;left:12px;bottom:12px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.92);color:#1f1b16;display:grid;place-items:center}
-.thumb .tag{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px}
-.vid .meta{padding:12px 16px 14px}
-.lv{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold);white-space:nowrap}
-nav.tabs{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px 8px calc(8px + env(safe-area-inset-bottom));z-index:5}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav) + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 8px env(safe-area-inset-bottom);z-index:5}
+body.feedmode nav.tabs{background:rgba(10,10,10,.92);border-top-color:#222}
+body.feedmode nav.tabs button{color:#999}body.feedmode nav.tabs button.on{color:#fff}
 nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;font-size:11px;color:var(--muted);font-weight:500;position:relative}
+nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;color:var(--muted);font-weight:500;position:relative}
 nav.tabs .ic{font-size:21px;line-height:1.1;font-family:'Klee One',serif}
 nav.tabs button.on{color:var(--red)}
 nav.tabs .badge{position:absolute;top:0;left:calc(50% + 8px);background:var(--red);color:#fff;font-size:10px;font-weight:700;border-radius:99px;padding:1px 6px}
 .seg{display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px}
 .seg button{flex:1;padding:8px 10px;border-radius:10px;font-weight:700;font-size:14px;color:var(--muted)}
 .seg button.on{background:var(--red);color:#fff}
+/* ===== feed ===== */
+#feed{position:fixed;left:0;right:0;top:0;bottom:calc(var(--nav) + env(safe-area-inset-bottom));overflow-y:auto;scroll-snap-type:y mandatory;background:#0b0b0b;color:#fff;display:none;overscroll-behavior:contain}
+body.feedmode #feed{display:block}
+body.feedmode #app{display:none}
+.slide{height:100%;scroll-snap-align:start;scroll-snap-stop:always;position:relative;display:flex;flex-direction:column;justify-content:center;padding:calc(54px + env(safe-area-inset-top)) 0 12px;overflow:hidden}
+.slide .bg{position:absolute;inset:-20px;background:#000 center/cover no-repeat;filter:blur(24px) brightness(.35);transform:scale(1.1)}
+.slide .stage{position:relative;width:100%;max-width:720px;margin:0 auto;aspect-ratio:16/9;background:#000 center/cover no-repeat}
+.slide .stage iframe,.slide .stage>div{position:absolute;inset:0;width:100%;height:100%}
+.slide .tap{position:absolute;inset:0;display:grid;place-items:center}
+.slide .tap span{width:68px;height:68px;border-radius:50%;background:rgba(255,255,255,.92);color:#111;display:grid;place-items:center;font-size:24px;box-shadow:0 6px 20px rgba(0,0,0,.4)}
+.slide .info{position:relative;max-width:720px;margin:14px auto 0;padding:0 16px;width:100%}
+.slide .src{display:flex;align-items:center;gap:8px;font-size:13px;color:#ccc;font-weight:700}
+.slide .ttl{font-size:16px;font-weight:700;margin-top:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:1.4em}
+.lv{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:var(--gold-soft);color:var(--gold);white-space:nowrap}
+.slide .lv{background:rgba(216,170,74,.2);color:#e8c06a}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+.act{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:16px;background:rgba(255,255,255,.08);color:#fff;font-size:12px;font-weight:700;text-decoration:none}
+.act .i{font-size:20px;line-height:1}
+.act.hot{background:var(--red)}
+.hint{font-size:12px;color:#888;text-align:center;margin-top:12px}
+.feedtop{position:fixed;top:0;left:0;right:0;z-index:4;padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:none;align-items:center;gap:10px;background:linear-gradient(#000c,#0000);pointer-events:none}
+body.feedmode .feedtop{display:flex}
+.feedtop *{pointer-events:auto}
+.feedtop .mark{width:32px;height:32px;font-size:18px;border-radius:10px}
+.feedtop b{color:#fff;font-size:16px}
+.feedtop .chip{background:rgba(255,255,255,.12);border-color:transparent;color:#fff;margin-left:auto}
+.loading{height:100%;display:grid;place-items:center;text-align:center;color:#aaa;padding:30px}
+.spin{width:34px;height:34px;border:3px solid #333;border-top-color:var(--red);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 12px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* ===== sheets & pages ===== */
 .ov{position:fixed;inset:0;background:var(--paper);z-index:20;display:none;overflow-y:auto}
 .ov.open{display:block}
-.ov-in{max-width:560px;margin:0 auto;padding:10px 0 40px}
+.ov-in{max-width:560px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top)) 0 40px}
 .ov-top{display:flex;align-items:center;gap:10px;padding:0 14px 10px}
 .x{width:38px;height:38px;border-radius:12px;border:1px solid var(--line);background:var(--card);font-size:17px;flex:none}
-.vwrap{position:sticky;top:0;z-index:2;background:#000;aspect-ratio:16/9}
+.vwrap{position:relative;background:#000;aspect-ratio:16/9}
 .vwrap iframe,.vwrap>div{position:absolute;inset:0;width:100%;height:100%}
 .pad{padding:0 14px}
-.capbox{margin-top:12px;padding:14px 16px;border-radius:20px;background:var(--card);border:1px solid var(--line);min-height:110px}
-.capbox .who{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:2px}
-.jpl{font-size:25px;line-height:1.95;font-family:'Klee One',serif;word-break:break-all}
-.enl{color:var(--muted);font-size:15px;margin-top:4px}
-.nofuri rt{visibility:hidden}.noen .enl{display:none}
-rt{font-size:.45em;color:var(--muted);font-family:'Zen Kaku Gothic New',sans-serif}
-.tok{border-radius:8px;padding:0 1px;transition:background .12s,color .12s}
-.tok.w{cursor:pointer}
-.tok.saved{text-decoration:underline dotted var(--gold);text-underline-offset:6px;text-decoration-thickness:2px}
-.tok.cur{background:var(--gold-soft);color:var(--red)}
-.tok.hid rt{visibility:hidden}
-.ctrls{display:flex;align-items:center;justify-content:center;gap:12px;margin:12px 0 6px}
-.cb{width:46px;height:46px;border-radius:50%;background:var(--card);border:1px solid var(--line);font-size:16px;display:grid;place-items:center}
-.cb.main{width:58px;height:58px;background:var(--red);border-color:var(--red);color:#fff;font-size:20px}
-.toggles{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-.tg{padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:700;color:var(--muted)}
-.tg.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
-.trans{display:grid;gap:4px;margin-top:6px}
-.tl{display:flex;gap:10px;width:100%;text-align:left;padding:9px 12px;border-radius:14px;border:1px solid transparent}
-.tl.on{background:var(--card);border-color:var(--line)}
-.tl .ts{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;padding-top:4px;min-width:38px}
-.tl .j{font-family:'Klee One',serif;font-size:17px}.tl .e{font-size:13px;color:var(--muted)}
-.note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
-.sheet-bg{position:fixed;inset:0;background:rgba(20,14,8,.45);z-index:30;display:none;align-items:flex-end;justify-content:center}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:30;display:none;align-items:flex-end;justify-content:center}
 .sheet-bg.open{display:flex}
-.sheet{background:var(--card);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:up .2s ease}
+.sheet{background:var(--card);color:var(--ink);width:100%;max-width:560px;border-radius:24px 24px 0 0;padding:16px 18px calc(22px + env(safe-area-inset-bottom));max-height:92vh;overflow-y:auto;animation:up .2s ease}
 @keyframes up{from{transform:translateY(40px);opacity:.4}}
 .grab{width:40px;height:5px;border-radius:9px;background:var(--line);margin:0 auto 12px}
-.wbig{font-size:44px;font-family:'Klee One',serif;line-height:1.6}.wbig rt{font-size:.38em}
-.pos{display:inline-block;font-size:12px;font-weight:700;padding:3px 9px;border-radius:99px;background:var(--paper);border:1px solid var(--line);color:var(--muted)}
+.wbig{font-size:44px;font-family:'Klee One',serif;line-height:1.4}
 .fact{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;background:var(--paper);border-radius:12px;border:1px solid var(--line);margin-top:8px}
 .fact span:first-child{color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding-top:3px}
-.kchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-.kchip{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:13px;text-align:left}
+.kchip{display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:12px;background:var(--paper);border:1px solid var(--line);font-size:13px;text-align:left;color:var(--ink);text-decoration:none}
 .kchip b{font-family:'Klee One',serif;font-size:22px;width:32px;height:32px;display:grid;place-items:center;background:var(--card);border-radius:8px;font-weight:600}
 .fam{margin-bottom:12px}.fam-h{display:flex;align-items:center;gap:14px}
 .fam-k{font-family:'Klee One',serif;font-size:42px;width:62px;height:62px;border-radius:16px;background:var(--red);color:#fff;display:grid;place-items:center;flex:none}
 .wrow{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line);width:100%;text-align:left}
 .wrow:first-child{border-top:0}
-.wrow .w{font-family:'Klee One',serif;font-size:22px;line-height:1.7;min-width:80px}.wrow .w rt{font-size:.45em}
+.wrow .w{font-family:'Klee One',serif;font-size:22px;min-width:70px}
 .wrow .src{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .seeds{display:flex;flex-wrap:wrap;gap:8px}
 .empty{text-align:center;padding:26px 14px}.empty .jp{font-size:52px;color:var(--gold)}
 .rv-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow);text-align:center;margin-top:12px}
-.rv-word{font-size:52px;font-family:'Klee One',serif;line-height:1.5}.rv-word rt{font-size:.36em}
-.rv-ctx{margin-top:12px;padding:12px 14px;border-radius:16px;background:var(--paper);text-align:left}
-.rv-ctx .jpl{font-size:20px}
+.rv-word{font-size:54px;font-family:'Klee One',serif;line-height:1.4}
 .grades{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
 .grades button{padding:12px 4px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:14px}
 .grades button small{display:block;font-weight:500;color:var(--muted);font-size:11px}
 .grades .ag{color:var(--red)}.grades .gd{color:var(--green)}
+.tg{padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:700;color:var(--muted)}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
 .stat b{display:block;font-size:24px}.stat small{color:var(--muted);font-size:12px}
 .set{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);gap:12px}
 .set:last-child{border:0}
-.switch{width:48px;height:28px;border-radius:99px;background:var(--line);position:relative;transition:.2s;flex:none}
-.switch::after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
-.switch.on{background:var(--green)}.switch.on::after{left:23px}
 .lvpick{display:grid;gap:10px}
 .lvopt{display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;border-radius:18px;border:1.5px solid var(--line);background:var(--card);width:100%}
 .lvopt.on{border-color:var(--red);background:var(--red-soft)}
 .lvopt .k{font-family:'Klee One',serif;font-size:30px;width:48px;text-align:center}
-.steps{margin:8px 0 0;padding-left:20px;font-size:14px}.steps li{margin:4px 0}
-.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;justify-content:center;margin-top:8px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}
-#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
+.srclist{font-size:13px;color:var(--muted);margin-top:4px}
+.note{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+#toast{position:fixed;left:50%;bottom:calc(var(--nav) + 24px);transform:translateX(-50%);background:#111;color:#fff;padding:10px 16px;border-radius:12px;font-weight:700;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:50;max-width:90vw;text-align:center}
 #toast.show{opacity:1}
 </style>
 </head>
 <body>
+<div class="feedtop"><div class="mark jp">響</div><b>Hibiki</b><button class="chip" id="lvchip" data-act="tab" data-k="me"></button></div>
+<div id="feed"></div>
 <div id="app"></div>
 <nav class="tabs"><div class="in" id="tabs"></div></nav>
-<div class="ov" id="player"><div class="ov-in" id="pbody"></div></div>
 <div class="ov" id="review"><div class="ov-in" id="rbody"></div></div>
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='4';
+const APP_VERSION='5';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
-window.addEventListener('error',e=>showErr((e.message||'error')+' @'+(e.lineno||'?')));
+window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
 window.addEventListener('unhandledrejection',e=>showErr('Promise: '+(e.reason&&e.reason.message||e.reason)));
-/* ================= basics ================= */
-const LEVELS=[{n:'Beginner',d:'Slow, simple speech (around N5)',k:'初'},{n:'Intermediate',d:'Everyday conversations (N4–N3)',k:'中'},{n:'Advanced',d:'Natural, fast speech (N2+)',k:'上'}];
-const KEY='hibiki-yt-v1';
-let S={level:null,videos:[],saved:{},furi:true,en:true,rate:1,reviews:0};
+
+/* ================= curated sources ================= */
+// Each source is a YouTube playlist. For a whole channel we use its uploads playlist ("UU" + channel id without "UC").
+const up=ch=>'UU'+ch.slice(2);
+const SOURCES=[
+  {name:'Nihongo no Jikan (Comprehensible Japanese)',list:up('UCXo8kuCtqLjL1EH6m4FJJNA'),lv:0,kind:'Slow, all-Japanese stories'},
+  {name:'Japanese Immersion with Asami',list:up('UCIciBLpZ6BP2XNYTFXb6eRQ'),lv:0,kind:'Comprehensible input'},
+  {name:'Nihongo con Teppei (Beginners)',list:'PLbsmSVzhiwvA8VNMAW_cuDqujRQULBjFd',lv:0,kind:'Short podcast episodes'},
+  {name:'Say It in Japanese',list:up('UCycmtiNAQkMNLFo_IIkWBPQ'),lv:0,kind:'Everyday phrases'},
+  {name:'Easy Japanese — street interviews',list:'PLA5UIoabheFO87Zs0a2W-5ZMzWBjhg_Ap',lv:1,kind:'Real people on the street'},
+  {name:'Easy Japanese Podcast (Masa & Asami)',list:up('UC16-9M0osgdFbLKXvCwpXaw'),lv:1,kind:'Natural conversation, ~N3'},
+  {name:'Haru no Nihongo',list:up('UCauyM-A8JIJ9NQcw5_jF00Q'),lv:1,kind:'Real Japanese podcast'},
+  {name:'Easy Japanese News',list:up('UCQEqRIXGkgK44vae8Ye2s4w'),lv:1,kind:'News in two levels'},
+  {name:'ANNnewsCH',list:up('UCGCZAYq5Xxojl_tSXcVJhiQ'),lv:2,kind:'TV news (native speed)'},
+  {name:'TBS NEWS DIG',list:up('UC6AG81pAkf6Lbi_1VC5NmPA'),lv:2,kind:'TV news (native speed)'},
+  {name:'YutaNのサブカル流し',list:up('UCdtkKDHDbmC-4nWyJZ9ocig'),lv:2,kind:'Native chat podcast'}
+];
+const LEVELS=[{n:'Beginner',d:'Slow, clear Japanese (around N5–N4)',k:'初',mix:[0,0,0,1]},{n:'Intermediate',d:'Everyday conversations (N3)',k:'中',mix:[1,1,1,0,2]},{n:'Advanced',d:'Native speed: news, podcasts (N2+)',k:'上',mix:[2,2,1]}];
+
+/* ================= state ================= */
+const KEY='hibiki-feed-v1';
+let S={level:null,saved:{},seen:{},rate:1,reviews:0,lists:{},titles:{}};
 try{const s=JSON.parse(localStorage.getItem(KEY));if(s)S={...S,...s}}catch(e){}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save — storage full?')}};
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){try{S.titles={};localStorage.setItem(KEY,JSON.stringify(S))}catch(_){}}};
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
 const isK=c=>/[一-鿿々〆]/.test(c);
-const toHira=s=>String(s).replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
-const fmt=t=>{t=Math.max(0,Math.floor(t));const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
-const vById=id=>S.videos.find(v=>v.id===id);
-
-/* ================= tokenizer (kuromoji, in a background worker so the page never freezes) ================= */
-const TK_URL='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js',TK_DIC='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/';
-let tkState='loading',TKW=null;const TOKCACHE=new Map(),TKPEND=new Set();let tkBatch=[],tkTimer=null;
-const TKFLAG='hibiki-tk-attempt';
-try{if(localStorage.getItem(TKFLAG)){tkState='paused'}}catch(e){}
-function startTokenizer(force){
-  if(force){tkState='loading';try{localStorage.removeItem(TKFLAG)}catch(e){}refreshTk()}
-  if(TKW||tkState==='failed'||tkState==='paused'||S.smart===false)return;
-  try{localStorage.setItem(TKFLAG,String(Date.now()))}catch(e){}
-  const src=`let tk=null,q=[];
-try{importScripts(${JSON.stringify(TK_URL)});
-kuromoji.builder({dicPath:${JSON.stringify(TK_DIC)}}).build(function(e,t){if(e){postMessage({type:'fail',err:String(e)});return}tk=t;postMessage({type:'ready'});q.forEach(run);q=[]});
-}catch(e){postMessage({type:'fail',err:String(e)})}
-function run(texts){postMessage({type:'tok',texts:texts,res:texts.map(function(x){return tk.tokenize(x).map(function(t){return{surface_form:t.surface_form,reading:t.reading,basic_form:t.basic_form,pos:t.pos,pos_detail_1:t.pos_detail_1}})})})}
-onmessage=function(e){tk?run(e.data):q.push(e.data)};`;
-  try{
-    TKW=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
-    TKW.onmessage=e=>{
-      const d=e.data;
-      if(d.type==='ready'){tkState='ready';try{localStorage.removeItem(TKFLAG)}catch(_){}refreshTk()}
-      else if(d.type==='fail'){tkState='failed';try{localStorage.removeItem(TKFLAG)}catch(_){}console.warn('tokenizer',d.err);refreshTk()}
-      else if(d.type==='tok'){d.texts.forEach((x,i)=>{TOKCACHE.set(x,processRaw(d.res[i]));TKPEND.delete(x)});tokUpdated()}
-    };
-    TKW.onerror=e=>{tkState='failed';refreshTk()};
-  }catch(e){tkState='failed'}
-}
-function requestTok(texts){
-  if(tkState==='failed'||tkState==='paused'||S.smart===false)return;startTokenizer();
-  texts.forEach(x=>{if(x&&!TOKCACHE.has(x)&&!TKPEND.has(x)){TKPEND.add(x);tkBatch.push(x)}});
-  if(tkBatch.length&&!tkTimer)tkTimer=setTimeout(()=>{tkTimer=null;const b=tkBatch;tkBatch=[];if(TKW&&b.length)TKW.postMessage(b)},0);
-}
-let tokUpdT=null;
-function tokUpdated(){clearTimeout(tokUpdT);tokUpdT=setTimeout(()=>{if(P)renderCaption(true);else if(R&&$('#rcard'))renderReview()},30)}
-function refreshTk(){const el=$('#tkstatus');if(el)el.outerHTML=tkStatus()}
-function tkStatus(){
-  if(S.smart===false)return `<div class="status" id="tkstatus"><span class="dot"></span>Smart word splitting is off (Me tab)</div>`;
-  if(tkState==='paused')return `<div class="status" id="tkstatus" style="flex-wrap:wrap"><span class="dot bad"></span>Word splitter was skipped because it didn't finish last time. <button class="tg" data-act="tkretry">Try again</button></div>`;
-  return `<div class="status" id="tkstatus"><span class="dot ${tkState==='ready'?'ok':tkState==='failed'?'bad':''}"></span>${tkState==='ready'?'Word splitter ready':tkState==='failed'?'Word splitter unavailable — basic mode':'Loading word splitter in the background…'}</div>`}
-const POS={'名詞':'noun','動詞':'verb','形容詞':'i-adjective','副詞':'adverb','助詞':'particle','助動詞':'auxiliary','連体詞':'pre-noun adjectival','接続詞':'conjunction','感動詞':'interjection','接頭詞':'prefix','フィラー':'filler','記号':'symbol'};
-const GLOSS={'は':'topic marker','が':'subject marker; but','を':'object marker','に':'at, to, in (time / place / target)','で':'at, by, with (place / means)','の':"'s, of; (nominalizer)",'も':'also, too','と':'and, with; (quotation)','から':'because; from','まで':'until, up to','へ':'toward','や':'and (non-exhaustive list)','か':'(question marker); or','ね':'right? (seeks agreement)','よ':'(emphasis — "I tell you")','な':'(links na-adjective); don\'t (prohibition)','けど':'but, though','って':'(quotation) — "that…"','ので':'so, because','のに':'even though','だ':'is (plain copula)','です':'is, am, are (polite)','ます':'(polite verb ending)','た':'(past tense)','ない':'not (negative)','たい':'want to','て':'(and / connective form)','でも':'but; even','ぐらい':'about, around','くらい':'about, around','だけ':'only','より':'than; from','ばかり':'only, just'};
-function processRaw(raw){
-  const out=[];
-  raw.forEach(t=>{
-    const r=t.reading&&t.reading!=='*'?toHira(t.reading):'';
-    const base=t.basic_form&&t.basic_form!=='*'?t.basic_form:t.surface_form;
-    const prev=out[out.length-1];
-    const attach=prev&&!prev.punct&&['verb','i-adjective'].includes(prev.headPos)&&(t.pos==='助動詞'||(t.pos==='動詞'&&['非自立','接尾'].includes(t.pos_detail_1))||(t.pos==='助詞'&&t.pos_detail_1==='接続助詞'&&['て','で','ちゃ','じゃ'].includes(t.surface_form))||(t.pos==='形容詞'&&t.pos_detail_1==='非自立'));
-    if(attach){prev.s+=t.surface_form;prev.r+=(r||toHira(t.surface_form));return}
-    let p=POS[t.pos]||t.pos;if(t.pos==='名詞'&&t.pos_detail_1==='形容動詞語幹')p='na-adjective';if(t.pos==='名詞'&&t.pos_detail_1==='固有名詞')p='proper noun';
-    out.push({s:t.surface_form,r:r||toHira(t.surface_form),l:base,p,headPos:p,punct:t.pos==='記号'||/^\s+$/.test(t.surface_form)});
-  });
-  return addPos(out);
-}
-function addPos(out){let pos=0;out.forEach(t=>{t.start=pos;pos+=t.s.length;t.end=pos});return out}
-const BASIC=new Map();
-function tokenize(text){
-  if(TOKCACHE.has(text))return TOKCACHE.get(text);
-  requestTok([text]);
-  if(!BASIC.has(text))BASIC.set(text,addPos((text.match(/[\u4e00-\u9fff々〆]+[\u3041-\u3096]*|[\u3041-\u3096ー]+|[\u30a1-\u30faー]+|[A-Za-z0-9]+|\s+|./g)||[]).map(s=>({s,r:'',l:s,p:'',punct:/^[\s。、！？!?.,「」『』（）()…・〜~♪]+$/.test(s)}))));
-  return BASIC.get(text);
-}
-function furi(s,r){
-  if(!r||!isK(s)||toHira(s)===r)return esc(s);
-  const runs=s.match(/[一-鿿々〆]+|[^一-鿿々〆]+/g);
-  try{
-    const re=new RegExp('^'+runs.map(x=>isK(x[0])?'(.+?)':toHira(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('')+'$');
-    const m=toHira(r).match(re);
-    if(m){let g=1;return runs.map(x=>isK(x[0])?`<ruby>${esc(x)}<rt>${m[g++]}</rt></ruby>`:esc(x)).join('')}
-  }catch(e){}
-  return `<ruby>${esc(s)}<rt>${esc(r)}</rt></ruby>`;
-}
-const SHOWN=new Map();const shownToks=(vid,ci)=>SHOWN.get(vid+':'+ci)||tokenize(vById(vid).cues[ci].jp);
-function lineHTML(vid,ci,opt={}){
-  const cue=vById(vid).cues[ci],toks=tokenize(cue.jp);SHOWN.set(vid+':'+ci,toks);
-  return toks.map((t,ti)=>{
-    if(t.punct)return `<span class="tok p">${esc(t.s)}</span>`;
-    const c=['tok','w'];if(S.saved[t.l])c.push('saved');if(opt.mark===t.l)c.push('cur','mk');if(opt.hide===t.l)c.push('hid');
-    return `<span class="${c.join(' ')}" data-act="word" data-v="${vid}" data-c="${ci}" data-t="${ti}">${furi(t.s,t.r)}</span>`;
-  }).join('');
-}
-
-/* ================= transcript parsing ================= */
-function ts2s(h,m,s,ms){return (+h||0)*3600+(+m||0)*60+(+s||0)+(ms?+('0.'+ms):0)}
-function parseTranscript(txt){
-  txt=(txt||'').replace(/\r/g,'').trim();if(!txt)return[];
-  const cues=[];
-  if(/-->/.test(txt)){ // SRT / VTT
-    txt.split(/\n\s*\n/).forEach(b=>{
-      const ls=b.split('\n');const i=ls.findIndex(l=>l.includes('-->'));if(i<0)return;
-      const m=ls[i].match(/(?:(\d+):)?(\d{1,2}):(\d{2})[.,](\d+)\s*-->\s*(?:(\d+):)?(\d{1,2}):(\d{2})[.,](\d+)/);if(!m)return;
-      const jp=ls.slice(i+1).join(' ').replace(/<[^>]+>/g,'').replace(/\{[^}]*\}/g,'').trim();
-      if(jp)cues.push({s:ts2s(m[1],m[2],m[3],m[4]),e:ts2s(m[5],m[6],m[7],m[8]),jp});
-    });
-  }else{ // YouTube "Show transcript" copy: timestamps with text on same or following lines
-    let cur=null;
-    txt.split('\n').forEach(l=>{
-      l=l.trim();if(!l)return;
-      if(/^\d+\s*(秒|分|時間|seconds?|minutes?|hours?)([,、\s]+\d+\s*(秒|分|seconds?|minutes?))*$/i.test(l))return; // accessibility duplicates
-      const m=l.match(/^(?:(\d+):)?(\d{1,2}):(\d{2})(?:[.,](\d+))?\s*(.*)$/);
-      if(m){cur={s:ts2s(m[1],m[2],m[3],m[4]),jp:m[5]||''};cues.push(cur)}
-      else if(cur)cur.jp+=(cur.jp?' ':'')+l;
-    });
-  }
-  const out=cues.map(c=>({...c,jp:c.jp.replace(/\[[^\]]*\]|［[^］]*］/g,'').replace(/\s+/g,' ').trim()})).filter(c=>c.jp).sort((a,b)=>a.s-b.s);
-  out.forEach((c,i)=>{const n=out[i+1];if(!c.e||c.e<=c.s)c.e=n?n.s:c.s+4;if(n&&c.e>n.s+.5)c.e=n.s});
-  return out;
-}
-function alignEnglish(cues,en){
-  if(!en.length)return;
-  cues.forEach(c=>{
-    let best=null,bo=0;
-    en.forEach(x=>{const o=Math.min(c.e,x.e)-Math.max(c.s,x.s);if(o>bo){bo=o;best=x}});
-    if(!best){best=en.reduce((a,x)=>Math.abs(x.s-c.s)<Math.abs(a.s-c.s)?x:a,en[0]);if(Math.abs(best.s-c.s)>2)best=null}
-    if(best)c.en=best.jp;
-  });
-}
-function ytId(u){
-  u=(u||'').trim();if(/^[\w-]{11}$/.test(u))return u;
-  const m=u.match(/(?:v=|youtu\.be\/|shorts\/|embed\/|live\/)([\w-]{11})/);return m?m[1]:null;
-}
+const fmt=t=>{t=Math.max(0,Math.floor(t));const m=Math.floor(t/60),s=t%60;return m+':'+String(s).padStart(2,'0')};
+const shuffle=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 
 /* ================= YouTube API ================= */
 let ytReady=false;const ytWait=[];
 window.onYouTubeIframeAPIReady=()=>{ytReady=true;ytWait.splice(0).forEach(f=>f())};
-(function(){const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>toast('Could not load YouTube');document.head.appendChild(s)})();
+(function(){const s=document.createElement('script');s.src='https://www.youtube.com/iframe_api';s.onerror=()=>{ytFailed=true;if(tab==='watch')renderFeed()};document.head.appendChild(s)})();
+let ytFailed=false;
 const whenYT=f=>ytReady?f():ytWait.push(f);
-const isFile=location.protocol==='file:';
 
-/* ================= main tabs ================= */
+/* ================= building the feed ================= */
+const DAY=864e5;
+function fetchList(src){ // uses a tiny hidden player to read a playlist's video IDs (no API key needed)
+  return new Promise(res=>{
+    const c=S.lists[src.list];if(c&&Date.now()-c.t<DAY&&c.ids.length)return res(c.ids);
+    whenYT(()=>{
+      const host=document.createElement('div');host.style.cssText='position:fixed;left:-400px;top:0;width:200px;height:120px;opacity:0;pointer-events:none';
+      const el=document.createElement('div');host.appendChild(el);document.body.appendChild(host);
+      let done=false,p;
+      const finish=ids=>{if(done)return;done=true;try{p.destroy()}catch(e){}host.remove();
+        if(ids&&ids.length){S.lists[src.list]={t:Date.now(),ids:ids.slice(0,120)};save();res(S.lists[src.list].ids)}else res(c?c.ids:[])};
+      setTimeout(()=>finish(null),12000);
+      p=new YT.Player(el,{width:200,height:120,playerVars:{listType:'playlist',list:src.list,autoplay:0,mute:1},
+        events:{onReady:()=>{let n=0;const iv=setInterval(()=>{n++;let ids=null;try{ids=p.getPlaylist()}catch(e){}if(ids&&ids.length){clearInterval(iv);finish(ids)}else if(n>30){clearInterval(iv);finish(null)}},300)},
+          onError:()=>finish(null)}});
+    });
+  });
+}
+let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
+async function buildFeed(){
+  if(feedState==='loading')return;feedState='loading';renderFeed();
+  const lv=S.level;const srcs=SOURCES.filter(s=>LEVELS[lv].mix.includes(s.lv));
+  const lists=[];
+  for(const s of srcs){const ids=await fetchList(s);if(ids.length)lists.push({s,ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))});if(lists.length&&!FEED.length){FEED=interleave(lists);feedState='partial';renderFeed()}}
+  const all=interleave(lists);
+  if(!FEED.length){FEED=all;feedState=all.length?'ready':'empty';renderFeed();return}
+  // keep what's on screen (and the next couple) untouched, append the full mix after it
+  const keep=Math.min(FEED.length,Math.max(active,0)+3),head=FEED.slice(0,keep),have=new Set(head.map(x=>x.id));
+  FEED=head.concat(all.filter(x=>!have.has(x.id)));feedState='ready';
+  const f=$('#feed');f.querySelectorAll('.slide').forEach(s=>{if(+s.dataset.i>=keep)s.remove()});
+  f.insertAdjacentHTML('beforeend',FEED.slice(keep).map((it,j)=>slideHTML(it,keep+j)).join(''));
+}
+function interleave(lists){
+  const w=LEVELS[S.level].mix;const out=[],idx=lists.map(()=>0),seen=new Set();
+  // weight sources by how often their level appears in the mix
+  const weight=lists.map(l=>w.filter(x=>x===l.s.lv).length/Math.max(1,lists.filter(m=>m.s.lv===l.s.lv).length));
+  let guard=0;
+  while(out.length<300&&guard++<5000){
+    let any=false;
+    lists.forEach((l,i)=>{const take=Math.max(1,Math.round(weight[i]*2));for(let k=0;k<take;k++){if(idx[i]<l.ids.length){const id=l.ids[idx[i]++];if(!seen.has(id)){seen.add(id);out.push({id,src:l.s})}any=true}}});
+    if(!any)break;
+  }
+  // light shuffle in windows so sources don't feel mechanical
+  for(let i=0;i<out.length;i+=6){const part=shuffle(out.slice(i,i+6));out.splice(i,part.length,...part)}
+  return out;
+}
+function slideHTML(it,i){
+  return `<section class="slide" data-i="${i}"><div class="bg" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"></div>
+  <div class="stage" id="st${i}" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"><button class="tap" data-act="playhere" data-i="${i}"><span>▶</span></button></div>
+  <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(it.src.name)}</span><span class="lv">${LEVELS[it.src.lv].n}</span></div>
+   <div class="ttl" id="tt${i}">${esc(S.titles[it.id]||'')}</div>
+   <div class="acts"><button class="act hot" data-act="saveword" data-i="${i}"><span class="i">＋</span>Save word</button><button class="act" data-act="back5" data-i="${i}"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow" data-i="${i}"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/watch?v=${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
+   ${i===0?`<div class="hint">Swipe up for the next video · Japanese captions turn on automatically when the video has them</div>`:''}</div></section>`;
+}
+function renderFeed(){
+  const f=$('#feed');
+  $('#lvchip').textContent=S.level!==null?LEVELS[S.level].k+' '+LEVELS[S.level].n:'';
+  if(ytFailed){f.innerHTML=`<div class="loading"><div><b style="color:#fff">Can't reach YouTube</b><p>Check your internet connection, or open this page from its website link (not as a file), then pull down to retry.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Retry</button></div></div>`;return}
+  if(!FEED.length){f.innerHTML=`<div class="loading"><div><div class="spin"></div>${feedState==='empty'?'<b style="color:#fff">No videos found</b><p>The channels may be temporarily unavailable.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Try again</button>':'Finding Japanese videos for your level…'}</div></div>`;return}
+  destroyFP();active=-1;
+  f.innerHTML=FEED.map(slideHTML).join('');
+  requestAnimationFrame(onFeedScroll);
+}
+let scrollT=null;
+function onFeedScroll(){clearTimeout(scrollT);scrollT=setTimeout(()=>{const f=$('#feed');if(!f.clientHeight||!FEED.length)return;const i=Math.round(f.scrollTop/f.clientHeight);if(i!==active)activate(i)},140)}
+function destroyFP(){if(FP){try{FP.p.destroy()}catch(e){}const st=$('#st'+FP.i);if(st&&!st.querySelector('.tap'))st.innerHTML=`<button class="tap" data-act="playhere" data-i="${FP.i}"><span>▶</span></button>`;FP=null}}
+let interacted=false;
+function activate(i,userTap){
+  if(i<0||i>=FEED.length)return;
+  destroyFP();active=i;const it=FEED[i];
+  loadTitles(i);
+  if(!interacted&&!userTap)return; // first video waits for a tap (phones block autoplay with sound)
+  const st=$('#st'+i);if(!st)return;st.innerHTML='<div></div>';
+  whenYT(()=>{
+    if(active!==i)return;
+    const p=new YT.Player(st.firstChild,{videoId:it.id,playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,cc_load_policy:1,cc_lang_pref:'ja',hl:'ja',iv_load_policy:3},
+      events:{onReady:e=>{try{e.target.setPlaybackRate(S.rate);e.target.playVideo()}catch(_){}const d=e.target.getVideoData&&e.target.getVideoData();if(d&&d.title&&!S.titles[it.id]){S.titles[it.id]=d.title;const t=$('#tt'+i);if(t)t.textContent=d.title}},
+        onStateChange:e=>{if(e.data===1&&!S.seen[it.id]){S.seen[it.id]=Date.now();save()}if(e.data===0)nextSlide()},
+        onError:()=>{toast('This video can\'t play here — skipping');setTimeout(()=>{if(active===i)nextSlide()},900)}}});
+    FP={i,p,id:it.id};
+  });
+}
+function nextSlide(){const f=$('#feed');if(active<FEED.length-1)f.scrollTo({top:(active+1)*f.clientHeight,behavior:'smooth'})}
+function loadTitles(i){for(let k=i;k<Math.min(FEED.length,i+3);k++){const id=FEED[k].id;if(S.titles[id])continue;fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.title){S.titles[id]=j.title;const t=$('#tt'+k);if(t)t.textContent=j.title}}).catch(()=>{})}}
+const fpTime=()=>{try{return FP&&FP.p.getCurrentTime?FP.p.getCurrentTime():0}catch(e){return 0}};
+
+/* ================= tabs ================= */
 let tab='watch',wordsView='fam';
 const TABS=[['watch','映','Watch'],['review','復','Review'],['words','字','Words'],['me','私','Me']];
 const due=()=>Object.values(S.saved).filter(w=>w.due<=Date.now());
 function renderTabs(){const d=due().length;$('#tabs').innerHTML=TABS.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" data-act="tab" data-k="${k}"><span class="ic">${ic}</span>${l}${k==='review'&&d?`<span class="badge">${d}</span>`:''}</button>`).join('')}
-function header(){return `<header class="top"><div class="brand"><div class="mark jp">響</div><div><b>Hibiki</b><small>Learn Japanese from YouTube</small></div></div>${S.level!==null?`<button class="chip" data-act="tab" data-k="me">${LEVELS[S.level].k} ${LEVELS[S.level].n}</button>`:''}</header>`}
-function render(){renderTabs();$('#app').innerHTML=header()+(isFile?`<div class="card" style="border-color:var(--red);margin-bottom:14px"><b>Open this from a website, not as a file</b><div class="muted" style="font-size:14px">YouTube won't play videos in a page opened straight from your files. Put it on a free host (like GitHub Pages) and open that link.</div></div>`:'')+(S.level===null?onboardV():({watch:watchV,review:reviewV,words:wordsV,me:meV})[tab]())}
+function header(){return `<header class="top"><div class="brand"><div class="mark jp">響</div><div><b>Hibiki</b><small>Learn Japanese from real videos</small></div></div></header>`}
+function render(){
+  renderTabs();
+  const feedmode=S.level!==null&&tab==='watch';
+  document.body.classList.toggle('feedmode',feedmode);
+  if(feedmode){if(!feedBuilt){feedBuilt=true;buildFeed()}else if(!FEED.length)renderFeed();return}
+  if(FP)try{FP.p.pauseVideo()}catch(e){}
+  $('#app').innerHTML=header()+(S.level===null?onboardV():({review:reviewV,words:wordsV,me:meV})[tab]());
+}
 function onboardV(){
   return `<div class="card" style="text-align:center;padding:22px 18px"><div class="jp" style="font-size:52px;color:var(--red)">ようこそ</div><b style="font-size:20px">Welcome to Hibiki</b>
-  <p class="muted" style="margin:6px 0 0">Watch real Japanese YouTube videos with synced captions and furigana, tap any word to look it up, and review saved words with the clip you heard them in.</p></div>
+  <p class="muted" style="margin:6px 0 0">Swipe through real Japanese videos picked for your level. When you hear a word you want to keep, save it, and it comes back later with the clip you heard it in.</p></div>
   <h2>What's your level?</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div></span><span>→</span></button>`).join('')}</div>`;
-}
-function vidCard(v){
-  const n=Object.values(S.saved).filter(w=>w.vid===v.id).length;
-  return `<button class="vid" data-act="open" data-v="${v.id}"><div class="thumb" style="background-image:url(https://i.ytimg.com/vi/${v.id}/mqdefault.jpg)"><span class="play">▶</span><span class="tag">${v.cues.length?v.cues.length+' lines':'YouTube captions'}</span></div>
-  <div class="meta"><div class="row"><b class="grow" style="font-size:15px">${esc(v.title||'YouTube video')}</b><span class="lv">${LEVELS[v.level].n}</span></div><div class="muted" style="font-size:13px;margin-top:2px">${v.cues.some(c=>c.en)?'JP + EN captions':v.cues.length?'Japanese captions':'No transcript — tap words unavailable'}${v.watched?' · ✓ watched':''}${n?` · ${n} saved`:''}</div></div></button>`;
-}
-function watchV(){
-  const mine=S.videos.filter(v=>v.level===S.level),other=S.videos.filter(v=>v.level!==S.level);
-  const add=`<button class="btn primary wide" data-act="add">＋ Add a YouTube video</button>`;
-  if(!S.videos.length)return add+`<div class="card" style="margin-top:14px"><b>How it works</b><ol class="steps">
-   <li>Find a Japanese video on YouTube — vlogs, street interviews, cooking, anything.</li>
-   <li>Copy its link.</li>
-   <li>For tap-to-learn captions, also copy its Japanese transcript: open the video on youtube.com, tap <b>…more</b> in the description → <b>Show transcript</b>, then select and copy the text. A downloaded <b>.srt</b> or <b>.vtt</b> subtitle file works too.</li>
-   <li>Tap <b>Add a YouTube video</b> and paste them in.</li></ol>
-   <p class="muted" style="font-size:13px;margin-bottom:0">Pick videos that have human-made Japanese subtitles when you can — they're far more accurate than auto-generated ones.</p></div>${tkStatus()}`;
-  return add+(mine.length?`<h2>For you · ${LEVELS[S.level].n}</h2><div class="feed">${mine.map(vidCard).join('')}</div>`:'')+(other.length?`<h2>${mine.length?'Other levels':'Your videos'}</h2><div class="feed">${other.map(vidCard).join('')}</div>`:'')+tkStatus();
-}
-function addSheet(){
-  openSheet(`<b style="font-size:19px">Add a YouTube video</b>
-  <label>YouTube link</label><input id="f-url" placeholder="https://youtu.be/…" inputmode="url" autocomplete="off">
-  <label>Level</label><div class="seg" id="f-lv">${LEVELS.map((l,i)=>`<button class="${i===S.level?'on':''}" data-act="flv" data-i="${i}">${l.n}</button>`).join('')}</div>
-  <label>Japanese transcript <span style="font-weight:500">(recommended)</span></label>
-  <textarea id="f-jp" placeholder="0:00&#10;こんにちは、今日は…&#10;0:04&#10;…"></textarea>
-  <input type="file" id="f-jpfile" accept=".srt,.vtt,.txt" style="margin-top:6px;padding:8px;font-size:13px">
-  <label>English transcript <span style="font-weight:500">(optional, shown under each line)</span></label>
-  <textarea id="f-en" style="min-height:80px" placeholder="0:00&#10;Hello, today…"></textarea>
-  <input type="file" id="f-enfile" accept=".srt,.vtt,.txt" style="margin-top:6px;padding:8px;font-size:13px">
-  <button class="btn primary wide" style="margin-top:16px" data-act="doadd">Add video</button>
-  <p class="note">No transcript? The video still plays with YouTube's own Japanese captions, but you won't be able to tap words.</p>`);
-  ['jp','en'].forEach(k=>$('#f-'+k+'file').addEventListener('change',e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{$('#f-'+k).value=r.result};r.readAsText(f)}));
-}
-function doAdd(){
-  const id=ytId($('#f-url').value);if(!id){toast('That doesn\'t look like a YouTube link');return}
-  const lv=[...document.querySelectorAll('#f-lv button')].findIndex(b=>b.classList.contains('on'));
-  const cues=parseTranscript($('#f-jp').value);
-  if($('#f-jp').value.trim()&&!cues.length){toast('Couldn\'t find timestamps in that transcript');return}
-  alignEnglish(cues,parseTranscript($('#f-en').value));
-  const v={id,title:'',level:lv<0?(S.level||0):lv,cues,added:Date.now()};
-  S.videos=S.videos.filter(x=>x.id!==id);S.videos.unshift(v);save();closeSheet();render();
-  toast(cues.length?`Added with ${cues.length} caption lines`:'Added — using YouTube captions');
-  fetchTitle(id);
-}
-function fetchTitle(id){ // best-effort title via oEmbed
-  fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)).then(r=>r.json()).then(j=>{const v=vById(id);if(v&&j.title){v.title=j.title;save();if(!P)render()}}).catch(()=>{});
 }
 function reviewV(){
   const d=due(),all=Object.values(S.saved);
   const next=all.map(w=>w.due).filter(t=>t>Date.now()).sort((a,b)=>a-b)[0];
-  if(!all.length)return `<div class="card empty"><div class="jp">復習</div><b>No words saved yet</b><p class="muted">While watching, tap a word in the captions and press <b>Save</b>. It comes back here as a card that replays the moment you heard it.</p></div>`;
+  if(!all.length)return `<div class="card empty"><div class="jp">復習</div><b>No words saved yet</b><p class="muted">While watching, tap <b>＋ Save word</b> when you hear something you want to remember. It comes back here with the few seconds of video where you heard it.</p><button class="btn primary" data-act="tab" data-k="watch">Start watching</button></div>`;
   return d.length?`<button class="card" style="width:100%;text-align:left;background:var(--red);color:#fff;border:0" data-act="startreview"><div style="font-size:44px;font-weight:700;line-height:1">${d.length}</div><div style="opacity:.85">word${d.length>1?'s':''} ready — each replays its clip</div><div style="margin-top:10px;font-weight:700">Start review →</div></button>`
   :`<div class="card empty"><div class="jp">鈴</div><b>Nothing due right now</b><p class="muted">${next?'Next card in '+rel(next-Date.now())+'. ':''}Words come back just before you're likely to forget them.</p></div>`;
 }
 function rel(ms){const m=ms/6e4;if(m<60)return Math.max(1,Math.round(m))+' min';const h=m/60;if(h<24)return Math.round(h)+' h';const d=Math.round(h/24);return d+(d===1?' day':' days')}
 function families(){const f={};Object.values(S.saved).forEach(w=>[...new Set([...w.l].filter(isK))].forEach(k=>(f[k]=f[k]||[]).push(w)));return Object.entries(f).sort((a,b)=>b[1].length-a[1].length)}
-function wordRow(w){const v=vById(w.vid);return `<button class="wrow" data-act="savedw" data-k="${esc(w.l)}"><span class="w">${furi(w.s,w.r)}</span><span class="grow"><div>${esc(w.note||w.l)}</div><div class="src">▶ ${esc(v?v.title||'YouTube video':'(video removed)')} · ${fmt(w.t0)}</div></span><span class="muted">›</span></button>`}
+function wordRow(w){return `<button class="wrow" data-act="savedw" data-k="${esc(w.l)}"><span class="w">${esc(w.l)}</span><span class="grow"><div>${esc(w.note||'—')}</div><div class="src">▶ ${esc(w.title||w.srcName||'video')} · ${fmt(w.t0)}</div></span><span class="muted">›</span></button>`}
 function wordsV(){
   const all=Object.values(S.saved);
   const seg=`<div class="seg"><button class="${wordsView==='fam'?'on':''}" data-act="wv" data-k="fam">Kanji families</button><button class="${wordsView==='all'?'on':''}" data-act="wv" data-k="all">All words (${all.length})</button></div>`;
-  if(!all.length)return seg+`<div class="card empty" style="margin-top:14px"><div class="jp">字</div><b>Your word bank is empty</b><p class="muted">Save words from videos. Words that share a kanji — like 電車 and 電話 — group into a family here.</p></div>`;
+  if(!all.length)return seg+`<div class="card empty" style="margin-top:14px"><div class="jp">字</div><b>Your word bank is empty</b><p class="muted">Save words while you watch. Words that share a kanji, like 電車 and 電話, group into a family here.</p></div>`;
   if(wordsView==='all')return seg+`<div class="card" style="margin-top:14px;padding:6px 16px">${all.sort((a,b)=>b.added-a.added).map(wordRow).join('')}</div>`;
-  const F=families(),big=F.filter(f=>f[1].length>1),seeds=F.filter(f=>f[1].length===1);
+  const F=families(),big=F.filter(f=>f[1].length>1),seeds=F.filter(f=>f[1].length===1),kana=all.filter(w=>![...w.l].some(isK));
   return seg+(big.length?'<h2>Families</h2>'+big.map(([k,ws])=>`<div class="card fam"><div class="fam-h"><div class="fam-k">${k}</div><div class="grow"><b style="font-size:17px">The ${k} family</b><div class="muted" style="font-size:14px">${ws.length} words · <a href="https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji" target="_blank" rel="noopener">kanji details ↗</a></div></div></div><div style="margin-top:8px">${ws.map(wordRow).join('')}</div></div>`).join(''):`<div class="card" style="margin-top:14px"><b>No families yet</b><div class="muted" style="font-size:14px">Save a second word that shares a kanji with one you have, and a family forms.</div></div>`)
-  +(seeds.length?`<h2>Seeds · one word so far</h2><div class="seeds">${seeds.map(([k,ws])=>`<button class="kchip" data-act="savedw" data-k="${esc(ws[0].l)}"><b>${k}</b><span>${esc(ws[0].s)}</span></button>`).join('')}</div>`:'')+
-  (all.some(w=>![...w.l].some(isK))?`<h2>Kana-only words</h2><div class="card" style="padding:6px 16px">${all.filter(w=>![...w.l].some(isK)).map(wordRow).join('')}</div>`:'');
+  +(seeds.length?`<h2>Seeds · one word so far</h2><div class="seeds">${seeds.map(([k,ws])=>`<button class="kchip" data-act="savedw" data-k="${esc(ws[0].l)}"><b>${k}</b><span>${esc(ws[0].l)}</span></button>`).join('')}</div>`:'')
+  +(kana.length?`<h2>Kana-only words</h2><div class="card" style="padding:6px 16px">${kana.map(wordRow).join('')}</div>`:'');
 }
 function meV(){
   const all=Object.values(S.saved),fams=families().filter(f=>f[1].length>1).length;
-  return `<div class="stats3"><div class="stat"><b>${S.videos.filter(v=>v.watched).length}</b><small>videos watched</small></div><div class="stat"><b>${all.length}</b><small>words saved</small></div><div class="stat"><b>${fams}</b><small>kanji families</small></div></div>
+  return `<div class="stats3"><div class="stat"><b>${Object.keys(S.seen).length}</b><small>videos watched</small></div><div class="stat"><b>${all.length}</b><small>words saved</small></div><div class="stat"><b>${fams}</b><small>kanji families</small></div></div>
   <p class="muted" style="font-size:14px;text-align:center;margin:12px 0 0">No streaks, no penalties. Take a break whenever you like.</p>
-  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div></span></button>`).join('')}</div>
-  <h2>Captions</h2><div class="card" style="padding:4px 16px">
-  <div class="set"><span>Furigana above kanji</span><button class="switch ${S.furi?'on':''}" data-act="set" data-k="furi"></button></div>
-  <div class="set"><span>English line (if added)</span><button class="switch ${S.en?'on':''}" data-act="set" data-k="en"></button></div>
-  <div class="set"><span>Smart word splitting<div class="muted" style="font-size:12px">Adds furigana and dictionary forms. Downloads ~17 MB and needs a lot of memory — turn off if the app freezes.</div></span><button class="switch ${S.smart!==false?'on':''}" data-act="smart"></button></div></div>
+  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${SOURCES.filter(s=>l.mix.includes(s.lv)).map(s=>esc(s.name)).join(' · ')}</div></span></button>`).join('')}</div>
   <h2>Your data</h2><div class="card" style="padding:4px 16px">
-  <div class="set"><span>Back up videos & words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
+  <div class="set"><span>Get fresh videos now</span><button class="btn" style="padding:8px 14px" data-act="refresh">Refresh feed</button></div>
+  <div class="set"><span>Back up saved words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
   <div class="set"><span>Restore from backup</span><button class="btn" style="padding:8px 14px" data-act="import">Paste backup</button></div>
   <div class="set"><span>Remove everything</span><button class="btn" style="padding:8px 14px;color:var(--red)" data-act="reset">Reset</button></div></div>
-  ${tkStatus()}<p class="note">Version ${APP_VERSION} · Videos play from YouTube and belong to their creators. Your words and videos are saved in this browser.</p>`;
+  <p class="note">Version ${APP_VERSION} · Videos play from YouTube and belong to their creators. Your words are saved on this device.</p>`;
 }
 
-/* ================= player ================= */
-let P=null,YP=null,poll=null;
-function openVideo(id,t0=null){
-  const v=vById(id);if(!v)return;
-  P={v,ci:-1,playing:false,loopEnd:null};requestTok(v.cues.map(c=>c.jp));
-  $('#player').classList.add('open');document.body.style.overflow='hidden';
-  $('#pbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closep">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(v.title||'YouTube video')}</b><a class="muted" style="font-size:12px" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Open on YouTube ↗</a></div><button class="x" data-act="delvid" title="Remove video">🗑</button></div>
-  <div class="vwrap"><div id="yt"></div></div><div class="pad" id="pctl"></div>`;
-  renderControls();
-  whenYT(()=>{
-    YP=new YT.Player('yt',{videoId:v.id,playerVars:{playsinline:1,rel:0,modestbranding:1,start:t0!=null?Math.floor(t0):0,cc_load_policy:v.cues.length?0:1,cc_lang_pref:'ja',hl:'ja'},
-      events:{onReady:e=>{try{e.target.setPlaybackRate(S.rate)}catch(_){}if(t0!=null){e.target.seekTo(t0,true);e.target.playVideo()}const d=e.target.getVideoData();if(d&&d.title&&!v.title){v.title=d.title;save()}},
-        onStateChange:e=>{P&&(P.playing=e.data===1);updatePlayBtn();if(e.data===0&&P){v.watched=1;save()}},
-        onError:e=>{toast(e.data===101||e.data===150?'The creator doesn\'t allow this video to be embedded':'YouTube error '+e.data)}}});
-  });
-  clearInterval(poll);poll=setInterval(tick,100);
-}
-function closePlayer(){clearInterval(poll);try{YP&&YP.destroy()}catch(e){}YP=null;P=null;$('#player').classList.remove('open');document.body.style.overflow='';render()}
-const now=()=>{try{return YP&&YP.getCurrentTime?YP.getCurrentTime():0}catch(e){return 0}};
-function cueAt(t){const c=P.v.cues;let i=-1;for(let k=0;k<c.length;k++){if(c[k].s<=t+.05)i=k;else break}return i}
-function tick(){
-  if(!P||!YP||!YP.getCurrentTime)return;
-  const t=now();
-  if(P.loopEnd!=null&&t>=P.loopEnd){P.loopEnd=null;try{YP.pauseVideo()}catch(e){}}
-  if(!P.v.cues.length)return;
-  const i=cueAt(t);
-  if(i!==P.ci){P.ci=i;renderCaption()}
-  highlight(t);
-}
-function highlight(t){
-  const el=$('#jpl');if(!el||P.ci<0)return;const c=P.v.cues[P.ci];
-  const spans=[...el.querySelectorAll('.tok')],toks=shownToks(P.v.id,P.ci),tot=c.jp.length||1;
-  const f=(t-c.s)/Math.max(.5,(c.e-c.s)*.92),pos=f*tot;
-  const idx=f>=1||t>c.e?-1:toks.findIndex(k=>k.end>pos);
-  spans.forEach((s,j)=>s.classList.toggle('cur',j===idx&&!s.classList.contains('p')));
-}
-function renderControls(){
-  const v=P.v;
-  $('#pctl').innerHTML=(v.cues.length?`<div class="capbox ${S.furi?'':'nofuri'} ${S.en?'':'noen'}" id="cap"></div>
-   <div class="ctrls"><button class="cb" data-act="prev">⏮</button><button class="cb" data-act="replay" title="Replay line">↺</button><button class="cb main" id="ppb" data-act="pp">▶</button><button class="cb" data-act="next">⏭</button></div>`
-   :`<div class="card" style="margin-top:12px"><b>Playing with YouTube's captions</b><div class="muted" style="font-size:14px">Add a transcript to this video to get furigana, word highlighting and tap-to-save. <button class="tg" data-act="addfor">Add transcript</button></div></div>`)
-  +`<div class="toggles" style="margin-top:6px">${v.cues.length?`<button class="tg ${S.furi?'on':''}" data-act="set" data-k="furi">ふりがな</button>${v.cues.some(c=>c.en)?`<button class="tg ${S.en?'on':''}" data-act="set" data-k="en">English</button>`:''}`:''}${[.5,.75,1].map(r=>`<button class="tg ${S.rate===r?'on':''}" data-act="rate" data-v="${r}">${r}×</button>`).join('')}</div>`
-  +(v.cues.length?`<h2>Transcript</h2><div class="trans" id="trans">${v.cues.map((c,i)=>`<button class="tl" data-act="seek" data-i="${i}"><span class="ts">${fmt(c.s)}</span><span class="grow"><div class="j">${esc(c.jp)}</div>${c.en?`<div class="e">${esc(c.en)}</div>`:''}</span></button>`).join('')}</div>
-   <p class="note">Tap a word in the caption box to pause and look it up. Saved words are underlined.</p>${tkStatus()}`:'');
-  renderCaption(true);
-}
-function renderCaption(force){
-  if(!P||!P.v.cues.length)return;const cap=$('#cap');if(!cap)return;
-  const i=Math.max(P.ci,0),c=P.v.cues[i];
-  cap.innerHTML=`<div class="who">${fmt(c.s)} · line ${i+1}/${P.v.cues.length}</div><div class="jpl" id="jpl">${lineHTML(P.v.id,i)}</div>${c.en?`<div class="enl">${esc(c.en)}</div>`:''}`;
-  document.querySelectorAll('#trans .tl').forEach((b,j)=>b.classList.toggle('on',j===P.ci));
-  const on=document.querySelector('#trans .tl.on');if(on&&!force&&P.playing){const r=on.getBoundingClientRect(),top=$('.vwrap').getBoundingClientRect().bottom;if(r.top<top||r.bottom>innerHeight)on.scrollIntoView({block:'center',behavior:'smooth'})}
-}
-function updatePlayBtn(){const b=$('#ppb');if(b)b.textContent=P&&P.playing?'❚❚':'▶'}
-function seekCue(i,loop){
-  if(!YP||!YP.seekTo)return;const c=P.v.cues;i=Math.max(0,Math.min(c.length-1,i));
-  P.ci=-2;YP.seekTo(c[i].s,true);YP.playVideo();P.loopEnd=loop?c[i].e+.15:null;
-}
-
-/* ================= word sheet ================= */
+/* ================= saving words ================= */
 function openSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheetbg').classList.add('open')}
 function closeSheet(){$('#sheetbg').classList.remove('open')}
-function wordSheet(vid,ci,ti){
-  const v=vById(vid),cue=v.cues[ci],t=shownToks(vid,ci)[ti];if(!t)return;
-  const sv=S.saved[t.l],kanji=[...new Set([...t.l].filter(isK))];
-  const fam=kanji.map(k=>[k,Object.values(S.saved).filter(w=>w.l!==t.l&&w.l.includes(k))]).filter(f=>f[1].length);
-  const gloss=GLOSS[t.l]||GLOSS[t.s];
-  openSheet(`<div class="row"><div class="wbig grow">${furi(t.s,t.r)}</div></div>
-  ${t.p?`<span class="pos">${esc(t.p)}</span>`:''}
-  ${gloss?`<div style="font-size:19px;font-weight:700;margin-top:10px">${esc(gloss)}</div>`:''}
-  ${t.r&&t.r!==t.s?`<div class="fact"><span>Reading</span><span class="jp" style="font-size:18px">${esc(t.r)}</span></div>`:''}
-  ${t.l!==t.s?`<div class="fact"><span>Dictionary form</span><span class="jp" style="font-size:18px">${esc(t.l)}</span></div>`:''}
-  <a class="btn wide" style="margin-top:10px;text-decoration:none;color:var(--ink)" href="https://jisho.org/search/${encodeURIComponent(t.l)}" target="_blank" rel="noopener">📖 Look up “${esc(t.l)}” on Jisho ↗</a>
-  ${kanji.length?`<div class="kchips">${kanji.map(k=>`<a class="kchip" style="text-decoration:none;color:var(--ink)" href="https://jisho.org/search/${encodeURIComponent(k)}%20%23kanji" target="_blank" rel="noopener"><b>${k}</b>kanji ↗</a>`).join('')}</div>`:''}
-  ${fam.length?`<div class="fact" style="display:block"><span style="display:block">Family you're building</span>${fam.map(([k,ws])=>`<div style="margin-top:4px"><b class="jp">${k}</b> → <span class="jp">${ws.map(w=>esc(w.s)).join('、')}</span></div>`).join('')}</div>`:''}
-  <label>Meaning (your note)</label><input id="w-note" value="${esc(sv?sv.note:'')}" placeholder="e.g. to eat — from Jisho">
-  <button class="btn ${sv?'':'primary'} wide" style="margin-top:12px" data-act="savew" data-v="${vid}" data-c="${ci}" data-t="${ti}">${sv?'Update note':'＋ Save word'}</button>
-  ${sv?`<button class="btn wide" style="margin-top:8px;color:var(--red)" data-act="unsave" data-k="${esc(t.l)}">Remove from my words</button>`:''}
-  ${P?`<button class="btn wide" style="margin-top:8px" data-act="resume">Resume video</button>`:''}`);
+let pendingSave=null;
+function saveWordSheet(i){
+  const it=FEED[i],t=FP&&FP.i===i?fpTime():0;
+  try{FP&&FP.i===i&&FP.p.pauseVideo()}catch(e){}
+  pendingSave={it,t};
+  openSheet(`<b style="font-size:19px">Save a word from this clip</b>
+  <div class="muted" style="font-size:14px;margin-top:2px">${t?`At ${fmt(t)} — the review card will replay this moment.`:'Start the video first to save the exact moment.'}</div>
+  <label>Word you heard or saw in the captions</label><input id="sw-word" class="jp" style="font-size:22px" placeholder="例: 電車" autocomplete="off" lang="ja">
+  <div class="row" style="margin-top:8px"><a class="btn grow" id="sw-jisho" href="https://jisho.org" target="_blank" rel="noopener">📖 Look it up on Jisho ↗</a></div>
+  <label>Meaning (optional)</label><input id="sw-note" placeholder="e.g. train" autocomplete="off">
+  <button class="btn primary wide" style="margin-top:14px" data-act="dosave">Save word</button>
+  <button class="btn wide" style="margin-top:8px" data-act="resumefeed">Keep watching</button>`);
+  const w=$('#sw-word');w.addEventListener('input',()=>{$('#sw-jisho').href='https://jisho.org/search/'+encodeURIComponent(w.value.trim())});
+  setTimeout(()=>w.focus(),250);
 }
-function saveWord(vid,ci,ti){
-  const v=vById(vid),cue=v.cues[ci],t=shownToks(vid,ci)[ti],note=$('#w-note').value.trim();
-  if(S.saved[t.l]){S.saved[t.l].note=note;save();toast('Note updated');closeSheet();return}
-  S.saved[t.l]={s:t.s,r:t.r,l:t.l,p:t.p,note,vid,ci,t0:cue.s,t1:cue.e,line:cue.jp,en:cue.en||'',added:Date.now(),lvl:0,due:Date.now()};
-  const grew=[...new Set([...t.l].filter(isK))].find(k=>Object.values(S.saved).filter(w=>w.l.includes(k)).length===2);
-  save();toast(grew?`New kanji family: ${grew} 🎉`:'Saved — it\'ll come back in Review');closeSheet();
-  if(P)renderCaption(true);
+function doSave(){
+  const word=$('#sw-word').value.trim();if(!word){toast('Type the word first');return}
+  const {it,t}=pendingSave,note=$('#sw-note').value.trim(),ex=S.saved[word];
+  S.saved[word]={...(ex||{lvl:0,due:Date.now(),added:Date.now()}),l:word,note:note||(ex&&ex.note)||'',vid:it.id,t0:Math.max(0,t-4),t1:t+1.5,title:S.titles[it.id]||'',srcName:it.src.name};
+  const grew=!ex&&[...new Set([...word].filter(isK))].find(k=>Object.values(S.saved).filter(w=>w.l.includes(k)).length===2);
+  save();closeSheet();renderTabs();toast(grew?`New kanji family: ${grew} 🎉`:ex?'Updated':'Saved — it\'ll come back in Review');
+  try{FP&&FP.p.playVideo()}catch(e){}
 }
 function savedSheet(k){
-  const w=S.saved[k];if(!w)return;
-  openSheet(`<div class="wbig">${furi(w.s,w.r)}</div>${w.p?`<span class="pos">${esc(w.p)}</span>`:''}
-  <div style="font-size:19px;font-weight:700;margin-top:10px">${esc(w.note||GLOSS[w.l]||'No note yet')}</div>
-  ${w.l!==w.s?`<div class="fact"><span>Dictionary form</span><span class="jp" style="font-size:18px">${esc(w.l)}</span></div>`:''}
-  <div class="fact" style="display:block"><span style="display:block">Heard in</span><div class="jp" style="font-size:17px;margin-top:4px">${esc(w.line)}</div>${w.en?`<div class="muted" style="font-size:14px">${esc(w.en)}</div>`:''}</div>
-  <a class="btn wide" style="margin-top:10px;text-decoration:none;color:var(--ink)" href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener">📖 Jisho ↗</a>
-  ${vById(w.vid)?`<button class="btn primary wide" style="margin-top:8px" data-act="watchat" data-v="${w.vid}" data-t="${w.t0}">▶ Watch it in context</button>`:''}
+  const w=S.saved[k];if(!w)return;const kanji=[...new Set([...w.l].filter(isK))];
+  openSheet(`<div class="wbig">${esc(w.l)}</div><div style="font-size:19px;font-weight:700;margin-top:4px">${esc(w.note||'No meaning saved yet')}</div>
+  <div class="fact" style="display:block"><span style="display:block">Heard in</span><div style="margin-top:4px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div></div>
+  ${kanji.length?`<div class="seeds" style="margin-top:8px">${kanji.map(c=>`<a class="kchip" href="https://jisho.org/search/${encodeURIComponent(c)}%20%23kanji" target="_blank" rel="noopener"><b>${c}</b>kanji ↗</a>`).join('')}</div>`:''}
+  <a class="btn wide" style="margin-top:10px" href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener">📖 Jisho ↗</a>
+  <button class="btn primary wide" style="margin-top:8px" data-act="playclip" data-k="${esc(w.l)}">▶ Replay the clip</button>
   <button class="btn wide" style="margin-top:8px;color:var(--red)" data-act="unsave" data-k="${esc(w.l)}">Remove</button>`);
 }
 
 /* ================= review with clip replay ================= */
 const IV=[10/60,4,24,72,168,336,720,2160,4320];
 let R=null,RP=null;
-function startReview(){const q=due().sort(()=>Math.random()-.5);if(!q.length)return;R={q,i:0,shown:false,n:q.length};$('#review').classList.add('open');document.body.style.overflow='hidden';renderReview()}
-function closeReview(){try{RP&&RP.destroy()}catch(e){}RP=null;R=null;$('#review').classList.remove('open');document.body.style.overflow='';render()}
+function startReview(single){
+  const q=single?[S.saved[single]]:due().sort(()=>Math.random()-.5);if(!q.length)return;
+  if(FP)try{FP.p.pauseVideo()}catch(e){}
+  R={q,i:0,shown:!!single,n:q.length,single:!!single};$('#review').classList.add('open');renderReview();
+}
+function closeReview(){try{RP&&RP.destroy()}catch(e){}RP=null;R=null;$('#review').classList.remove('open');render()}
 function nextLvl(w,g){return Math.min(8,g==='again'?0:g==='hard'?Math.max(1,w.lvl):g==='good'?w.lvl+(w.lvl?1:2):w.lvl+(w.lvl?2:3))}
 function renderReview(){
   const b=$('#rbody');
   if(R.i>=R.q.length){try{RP&&RP.destroy()}catch(e){}RP=null;b.innerHTML=`<div class="ov-top"><button class="x" data-act="closer">✕</button></div><div class="pad"><div class="card empty"><div class="jp">お疲れさま</div><b style="font-size:18px">Review done</b><p class="muted">${R.n} card${R.n>1?'s':''} reviewed. Come back whenever — there's no streak to keep.</p><button class="btn primary" data-act="closer">Done</button></div></div>`;return}
-  const w=R.q[R.i],hasV=!!vById(w.vid);
-  const firstRender=!$('#rvid');
-  if(firstRender)b.innerHTML=`<div class="ov-top"><button class="x" data-act="closer">✕</button><div class="grow" style="height:8px;border-radius:9px;background:var(--line);overflow:hidden"><i id="rbar" style="display:block;height:100%;background:var(--red)"></i></div><span class="muted" id="rcount" style="font-size:13px;font-weight:700"></span></div>
-   <div class="vwrap" id="rvwrap"><div id="rvid"></div></div><div class="pad" id="rcard"></div>`;
+  const w=R.q[R.i];
+  if(!$('#rvid')){b.innerHTML=`<div class="ov-top"><button class="x" data-act="closer">✕</button><div class="grow" style="height:8px;border-radius:9px;background:var(--line);overflow:hidden"><i id="rbar" style="display:block;height:100%;background:var(--red)"></i></div><span class="muted" id="rcount" style="font-size:13px;font-weight:700"></span></div><div class="vwrap"><div id="rvid"></div></div><div class="pad" id="rcard"></div>`}
   $('#rbar').style.width=(R.i/R.q.length*100)+'%';$('#rcount').textContent=`${R.i+1}/${R.q.length}`;
-  $('#rvwrap').style.display=hasV?'':'none';
-  $('#rcard').innerHTML=`<div class="rv-card"><div class="muted" style="font-size:13px;font-weight:700">What does this mean?</div>
-   <div class="rv-word ${R.shown?'':'nofuri'}">${furi(w.s,w.r)}</div>
-   ${R.shown?`<div style="font-size:21px;font-weight:700">${esc(w.note||GLOSS[w.l]||'')}</div>${w.l!==w.s?`<div class="muted">dictionary form <span class="jp">${esc(w.l)}</span></div>`:''}<a href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener" style="font-size:14px">Jisho ↗</a>`:''}
-   <div class="rv-ctx ${S.furi?'':'nofuri'}"><div class="row"><div class="grow muted" style="font-size:12px;font-weight:700">YOU HEARD IT HERE · ${fmt(w.t0)}</div>${hasV?`<button class="tg" data-act="rplay">▶ Replay clip</button>`:''}</div>
-    <div class="jpl">${ctxHTML(w)}</div>${R.shown&&w.en?`<div class="enl">${esc(w.en)}</div>`:''}</div></div>
-  ${R.shown?`<div class="grades">${[['again','Again','ag'],['hard','Hard',''],['good','Good','gd'],['easy','Easy','']].map(([g,l,c])=>`<button class="${c}" data-act="grade" data-g="${g}">${l}<small>${rel(IV[nextLvl(w,g)]*36e5)}</small></button>`).join('')}</div>`:`<button class="btn primary wide" style="margin-top:12px" data-act="reveal">Show answer</button>`}`;
-  if(hasV&&!R.loaded){R.loaded=1;playClip(w)}
-}
-function ctxHTML(w){
-  const v=vById(w.vid);if(v&&v.cues[w.ci]&&v.cues[w.ci].jp===w.line)return lineHTML(w.vid,w.ci,{mark:w.l,hide:R.shown?null:w.l});
-  return esc(w.line);
+  $('#rcard').innerHTML=`<div class="rv-card"><div class="muted" style="font-size:13px;font-weight:700">${R.single?'Your word':'Listen to the clip — what does this mean?'}</div>
+   <div class="rv-word">${esc(w.l)}</div>
+   ${R.shown?`<div style="font-size:21px;font-weight:700">${esc(w.note||'(no meaning saved)')}</div><a href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener" style="font-size:14px">Jisho ↗</a>`:''}
+   <div class="muted" style="font-size:13px;margin-top:10px">${esc(w.title||w.srcName)} · ${fmt(w.t0)}</div>
+   <button class="tg" style="margin-top:10px" data-act="rplay">▶ Replay clip</button></div>
+  ${R.single?'':R.shown?`<div class="grades">${[['again','Again','ag'],['hard','Hard',''],['good','Good','gd'],['easy','Easy','']].map(([g,l,c])=>`<button class="${c}" data-act="grade" data-g="${g}">${l}<small>${rel(IV[nextLvl(w,g)]*36e5)}</small></button>`).join('')}</div>`:`<button class="btn primary wide" style="margin-top:12px" data-act="reveal">Show answer</button>`}`;
+  if(!R.loaded){R.loaded=1;playClip(w)}
 }
 function playClip(w){
-  const go=()=>{try{RP.loadVideoById({videoId:w.vid,startSeconds:Math.max(0,w.t0-.3),endSeconds:w.t1+.4})}catch(e){}};
+  const go=()=>{try{RP.loadVideoById({videoId:w.vid,startSeconds:w.t0,endSeconds:w.t1})}catch(e){}};
   if(RP&&RP.loadVideoById)return go();
-  whenYT(()=>{RP=new YT.Player('rvid',{videoId:w.vid,playerVars:{playsinline:1,rel:0,modestbranding:1,start:Math.floor(w.t0),end:Math.ceil(w.t1+.4),cc_load_policy:0},events:{onReady:()=>go()}})});
+  whenYT(()=>{RP=new YT.Player('rvid',{videoId:w.vid,playerVars:{playsinline:1,rel:0,modestbranding:1,start:Math.floor(w.t0),end:Math.ceil(w.t1),cc_load_policy:1,cc_lang_pref:'ja',hl:'ja'},events:{onReady:()=>go()}})});
 }
 function grade(g){const w=R.q[R.i],l=nextLvl(w,g);w.lvl=l;w.due=Date.now()+IV[l]*36e5;S.saved[w.l]=w;S.reviews++;save();if(g==='again')R.q.push(w);R.i++;R.shown=false;R.loaded=0;renderReview()}
 
 /* ================= events ================= */
+$('#feed').addEventListener('scroll',onFeedScroll,{passive:true});
 document.addEventListener('click',e=>{
   if(e.target.id==='sheetbg'){closeSheet();return}
   const el=e.target.closest('[data-act]');if(!el)return;const d=el.dataset;
   switch(d.act){
     case 'tab':tab=d.k;render();scrollTo(0,0);break;
-    case 'setlevel':S.level=+d.i;save();render();break;
-    case 'add':addSheet();break;
-    case 'addfor':{const v=P.v;closePlayer();addSheet();$('#f-url').value='https://youtu.be/'+v.id;break}
-    case 'flv':document.querySelectorAll('#f-lv button').forEach((b,i)=>b.classList.toggle('on',i===+d.i));break;
-    case 'doadd':doAdd();break;
-    case 'open':openVideo(d.v);break;
-    case 'closep':closePlayer();break;
-    case 'delvid':openSheet(`<b style="font-size:18px">Remove this video?</b><p class="muted">Words you saved from it stay in your word bank.</p><div class="row"><button class="btn grow" data-act="nosheet">Cancel</button><button class="btn primary grow" data-act="dodel">Remove</button></div>`);break;
-    case 'dodel':{const id=P.v.id;closeSheet();closePlayer();S.videos=S.videos.filter(v=>v.id!==id);save();render();break}
-    case 'pp':if(YP&&YP.getPlayerState){P.loopEnd=null;YP.getPlayerState()===1?YP.pauseVideo():YP.playVideo()}break;
-    case 'prev':seekCue((P.ci<0?0:P.ci)-1);break;
-    case 'next':seekCue((P.ci<0?-1:P.ci)+1);break;
-    case 'replay':seekCue(Math.max(0,P.ci),true);break;
-    case 'seek':seekCue(+d.i);scrollTo({top:0,behavior:'smooth'});break;
-    case 'word':e.stopPropagation();try{YP&&YP.pauseVideo()}catch(_){}wordSheet(d.v,+d.c,+d.t);break;
-    case 'savew':saveWord(d.v,+d.c,+d.t);break;
-    case 'unsave':delete S.saved[d.k];save();closeSheet();P?renderCaption(true):render();toast('Removed');break;
-    case 'resume':closeSheet();try{YP.playVideo()}catch(_){}break;
+    case 'setlevel':{const changed=S.level!==+d.i;S.level=+d.i;save();if(changed){FEED=[];feedBuilt=false;feedState='idle';destroyFP()}tab='watch';render();break}
+    case 'playhere':interacted=true;activate(+d.i,true);break;
+    case 'saveword':saveWordSheet(+d.i);break;
+    case 'back5':if(FP&&FP.i===+d.i){try{FP.p.seekTo(Math.max(0,fpTime()-5),true);FP.p.playVideo()}catch(_){}}break;
+    case 'slow':S.rate=S.rate===1?.75:S.rate===.75?.5:1;save();document.querySelectorAll('.act .rl').forEach(x=>x.textContent=S.rate===1?'Slower':S.rate+'×');try{FP&&FP.p.setPlaybackRate(S.rate)}catch(_){}toast('Speed '+S.rate+'×');break;
+    case 'dosave':doSave();break;
+    case 'resumefeed':closeSheet();try{FP&&FP.p.playVideo()}catch(_){}break;
+    case 'retry':ytFailed=false;FEED=[];feedState='idle';buildFeed();break;
+    case 'refresh':S.lists={};save();FEED=[];feedBuilt=false;feedState='idle';tab='watch';render();toast('Getting fresh videos…');break;
     case 'savedw':savedSheet(d.k);break;
-    case 'watchat':closeSheet();if(R)closeReview();openVideo(d.v,+d.t);break;
+    case 'playclip':closeSheet();startReview(d.k);break;
+    case 'unsave':delete S.saved[d.k];save();closeSheet();render();toast('Removed');break;
     case 'wv':wordsView=d.k;render();break;
-    case 'set':S[d.k]=!S[d.k];save();if(P){renderControls();updatePlayBtn()}else render();break;
-    case 'rate':S.rate=+d.v;save();try{YP&&YP.setPlaybackRate(S.rate)}catch(_){}renderControls();updatePlayBtn();break;
     case 'nosheet':closeSheet();break;
-    case 'export':{const t=JSON.stringify({videos:S.videos,saved:S.saved});(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Backup copied — paste it somewhere safe'),()=>openSheet(`<b>Copy this backup</b><textarea style="min-height:200px">${esc(t)}</textarea>`));break}
-    case 'import':openSheet(`<b style="font-size:18px">Restore from backup</b><textarea id="imp" placeholder="Paste backup text"></textarea><button class="btn primary wide" style="margin-top:10px" data-act="doimport">Restore</button>`);break;
-    case 'doimport':try{const j=JSON.parse($('#imp').value);S.videos=j.videos||[];S.saved=j.saved||{};save();closeSheet();render();toast('Restored')}catch(_){toast('That backup text isn\'t valid')}break;
-    case 'reset':openSheet(`<b style="font-size:18px">Remove everything?</b><p class="muted">This deletes your videos, saved words and review history in this browser.</p><div class="row"><button class="btn grow" data-act="nosheet">Cancel</button><button class="btn primary grow" data-act="doreset">Reset</button></div>`);break;
-    case 'doreset':S={...S,videos:[],saved:{},reviews:0};save();closeSheet();render();break;
+    case 'export':{const t=JSON.stringify({saved:S.saved});(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast('Backup copied — paste it somewhere safe'),()=>openSheet(`<b>Copy this backup</b><textarea style="width:100%;min-height:200px">${esc(t)}</textarea>`));break}
+    case 'import':openSheet(`<b style="font-size:18px">Restore from backup</b><textarea id="imp" style="width:100%;min-height:140px;margin-top:10px" placeholder="Paste backup text"></textarea><button class="btn primary wide" style="margin-top:10px" data-act="doimport">Restore</button>`);break;
+    case 'doimport':try{const j=JSON.parse($('#imp').value);S.saved=j.saved||{};save();closeSheet();render();toast('Restored')}catch(_){toast('That backup text isn\'t valid')}break;
+    case 'reset':openSheet(`<b style="font-size:18px">Remove everything?</b><p class="muted">This deletes your saved words and watch history on this device.</p><div class="row"><button class="btn grow" data-act="nosheet">Cancel</button><button class="btn primary grow" data-act="doreset">Reset</button></div>`);break;
+    case 'doreset':S={...S,saved:{},seen:{},reviews:0};save();closeSheet();render();break;
     case 'startreview':startReview();break;
-    case 'tkretry':startTokenizer(true);break;
-    case 'smart':S.smart=S.smart===false;save();if(S.smart)startTokenizer(tkState==='paused');render();break;
     case 'closer':closeReview();break;
     case 'reveal':R.shown=true;renderReview();break;
     case 'rplay':playClip(R.q[R.i]);break;
     case 'grade':grade(d.g);break;
   }
 });
-document.addEventListener('keydown',e=>{if(!P||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
-  if(e.key===' '){e.preventDefault();const el=document.querySelector('[data-act=pp]');el&&el.click()}else if(e.key==='ArrowRight')seekCue(P.ci+1);else if(e.key==='ArrowLeft')seekCue(P.ci-1);else if(e.key==='r')seekCue(Math.max(0,P.ci),true)});
-window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(R){closeReview();return true}if(P){closePlayer();return true}if(tab!=='watch'){tab='watch';render();return true}return false};
+document.addEventListener('keydown',e=>{if(tab!=='watch'||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;const f=$('#feed');if(e.key==='ArrowDown'){e.preventDefault();f.scrollBy({top:f.clientHeight,behavior:'smooth'})}else if(e.key==='ArrowUp'){e.preventDefault();f.scrollBy({top:-f.clientHeight,behavior:'smooth'})}});
+window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(R){closeReview();return true}if(tab!=='watch'&&S.level!==null){tab='watch';render();return true}return false};
 render();
-setTimeout(()=>{if(S.videos.length)startTokenizer()},1500);
-setInterval(()=>{if(!P&&!R)renderTabs()},60000);
+setInterval(()=>{if(!R)renderTabs()},60000);
 </script>
 </body>
 </html>
