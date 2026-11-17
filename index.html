@@ -151,7 +151,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='7';
+const APP_VERSION='8';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -161,22 +161,32 @@ window.addEventListener('unhandledrejection',e=>showErr('Promise: '+(e.reason&&e
 // Each source is a YouTube playlist. For a whole channel we use its uploads playlist ("UU" + channel id without "UC").
 const up=ch=>'UU'+ch.slice(2),shorts=ch=>'UUSH'+ch.slice(2);
 const CH=[
-  {name:'Nihongo no Jikan (Comprehensible Japanese)',id:'UCXo8kuCtqLjL1EH6m4FJJNA',lv:0},
-  {name:'Japanese Immersion with Asami',id:'UCIciBLpZ6BP2XNYTFXb6eRQ',lv:0},
-  {name:'Say It in Japanese',id:'UCycmtiNAQkMNLFo_IIkWBPQ',lv:0},
-  {name:'Easy Japanese Podcast (Masa & Asami)',id:'UC16-9M0osgdFbLKXvCwpXaw',lv:1},
-  {name:'Haru no Nihongo',id:'UCauyM-A8JIJ9NQcw5_jF00Q',lv:1},
-  {name:'Easy Japanese News',id:'UCQEqRIXGkgK44vae8Ye2s4w',lv:1},
-  {name:'ANNnewsCH',id:'UCGCZAYq5Xxojl_tSXcVJhiQ',lv:2},
-  {name:'TBS NEWS DIG',id:'UC6AG81pAkf6Lbi_1VC5NmPA',lv:2},
-  {name:'YutaNのサブカル流し',id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:2}
+  // Beginner
+  {name:'Nihongo no Jikan (Comprehensible Japanese)',id:'UCXo8kuCtqLjL1EH6m4FJJNA',lv:[0]},
+  {name:'Japanese Immersion with Asami',id:'UCIciBLpZ6BP2XNYTFXb6eRQ',lv:[0]},
+  {name:'Say It in Japanese',id:'UCycmtiNAQkMNLFo_IIkWBPQ',lv:[0]},
+  {name:'Japanese with Shun',id:'UCu6sZrHyl4hSS2PvlUo2XZA',lv:[0]},
+  {name:'Miku Real Japanese',id:'UCsQCbl3a9FtYvA55BxdzYiQ',lv:[0]},
+  // Intermediate
+  {name:'Easy Japanese Podcast (Masa & Asami)',id:'UC16-9M0osgdFbLKXvCwpXaw',lv:[1]},
+  {name:'Haru no Nihongo',id:'UCauyM-A8JIJ9NQcw5_jF00Q',lv:[1]},
+  {name:'Easy Japanese News',id:'UCQEqRIXGkgK44vae8Ye2s4w',lv:[1]},
+  {name:"Haru's Japanese Cafe",id:'UClnSFVnyy9PHDUS6I-LKyrQ',lv:[1]},
+  {name:'日本語の森 (Nihongo no Mori)',id:'UCVx6RFaEAg46xfAsD2zz16w',lv:[1]},
+  // Short dramas: native speech, but the acting makes the story easy to follow
+  {name:'こねこフィルム (CONECO FILM)',id:'UCKatN6slu1BFGUnZOTXSBsw',lv:[1,2],shortsOnly:true},
+  {name:'ごっこ倶楽部 (GOKKO CLUB)',id:'UChbyqrxREoPtmUmYaxUAGqA',lv:[1,2],shortsOnly:true},
+  // Advanced
+  {name:'ANNnewsCH',id:'UCGCZAYq5Xxojl_tSXcVJhiQ',lv:[2]},
+  {name:'TBS NEWS DIG',id:'UC6AG81pAkf6Lbi_1VC5NmPA',lv:[2]},
+  {name:'YutaNのサブカル流し',id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:[2]}
 ];
 const longs=ch=>'UULF'+ch.slice(2);
 const SOURCES=[
   ...CH.map(c=>({name:c.name,list:shorts(c.id),lv:c.lv,short:true})),
-  ...CH.map(c=>({name:c.name,list:longs(c.id),lv:c.lv})),
-  {name:'Nihongo con Teppei (Beginners)',list:'PLbsmSVzhiwvA8VNMAW_cuDqujRQULBjFd',lv:0},
-  {name:'Easy Japanese — street interviews',list:'PLA5UIoabheFO87Zs0a2W-5ZMzWBjhg_Ap',lv:1}
+  ...CH.filter(c=>!c.shortsOnly).map(c=>({name:c.name,list:longs(c.id),lv:c.lv})),
+  {name:'Nihongo con Teppei (Beginners)',list:'PLbsmSVzhiwvA8VNMAW_cuDqujRQULBjFd',lv:[0]},
+  {name:'Easy Japanese — street interviews',list:'PLA5UIoabheFO87Zs0a2W-5ZMzWBjhg_Ap',lv:[1]}
 ];
 const LEVELS=[{n:'Beginner',d:'Slow, clear Japanese (around N5–N4)',k:'初'},{n:'Intermediate',d:'Everyday conversations (N3)',k:'中'},{n:'Advanced',d:'Native speed: news, podcasts (N2+)',k:'上'}];
 
@@ -220,7 +230,7 @@ function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (n
 let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
 async function buildFeed(){
   if(feedState==='loading')return;feedState='loading';renderFeed();
-  const srcs=SOURCES.filter(s=>s.short&&s.lv===S.level);
+  const srcs=SOURCES.filter(s=>s.short&&s.lv.includes(S.level));
   const order=[...srcs.filter(s=>s.short),...srcs.filter(s=>!s.short)]; // shorts first so the feed starts fast and snappy
   const lists=[];
   for(let k=0;k<order.length;k+=2){ // two at a time
@@ -250,7 +260,7 @@ const thumb=it=>`https://i.ytimg.com/vi/${it.id}/${it.short?'oar2':'hqdefault'}.
 function slideHTML(it,i){
   return `<section class="slide ${it.short?'short':''}" data-i="${i}"><div class="bg" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"></div>
   <div class="stage" id="st${i}" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"></div>
-  <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.short?'<span class="shortb">Shorts</span> ':''}${esc(it.src.name)}</span><span class="lv">${LEVELS[it.src.lv].n}</span></div>
+  <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.short?'<span class="shortb">Shorts</span> ':''}${esc(it.src.name)}</span><span class="lv">${LEVELS[S.level].n}</span></div>
    <div class="ttl" id="tt${i}">${esc(S.titles[it.id]||'')}</div>
    <div class="acts"><button class="act hot" data-act="saveword" data-i="${i}"><span class="i">＋</span>Save word</button><button class="act" data-act="back5" data-i="${i}"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow" data-i="${i}"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/${it.short?'shorts/':'watch?v='}${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
    ${i===0?`<div class="hint">Swipe up for the next short · longer videos are in the Videos tab</div>`:''}</div></section>`;
@@ -320,7 +330,7 @@ window.addEventListener('resize',()=>{if(tab==='watch'&&active>=0)placePlayer(ac
 let VIDS=[],vidState='idle',vidBuilt=false,vidShown=24;
 async function buildVideos(){
   vidState='loading';if(tab==='videos')render();
-  const srcs=SOURCES.filter(s=>!s.short&&s.lv===S.level),lists=[];
+  const srcs=SOURCES.filter(s=>!s.short&&s.lv.includes(S.level)),lists=[];
   for(let k=0;k<srcs.length;k+=2){
     const got=await Promise.all(srcs.slice(k,k+2).map(fetchList));
     got.forEach((ids,j)=>{if(ids.length)lists.push({s:srcs[k+j],ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})});
@@ -339,7 +349,7 @@ let VP=null,vpReady=false,VCUR=null;
 function openVid(i){
   const it=VIDS[i];if(!it)return;VCUR=it;hidePlayer();
   $('#vplayer').classList.add('open');
-  $('#vbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closevid">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.titles[it.id]||it.src.name)}</b><div class="muted" style="font-size:12px">${esc(it.src.name)} · ${LEVELS[it.src.lv].n}</div></div></div>
+  $('#vbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closevid">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.titles[it.id]||it.src.name)}</b><div class="muted" style="font-size:12px">${esc(it.src.name)} · ${LEVELS[S.level].n}</div></div></div>
   <div class="vwrap"><div id="vpv"></div></div>
   <div class="pad"><div class="acts light"><button class="act hot" data-act="vsave"><span class="i">＋</span>Save word</button><button class="act" data-act="vback5"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/watch?v=${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
   <p class="note">Japanese captions turn on automatically when the video has them. Tap CC in the player if they're off.</p></div>`;
@@ -395,7 +405,7 @@ function meV(){
   const all=Object.values(S.saved),fams=families().filter(f=>f[1].length>1).length;
   return `<div class="stats3"><div class="stat"><b>${Object.keys(S.seen).length}</b><small>videos watched</small></div><div class="stat"><b>${all.length}</b><small>words saved</small></div><div class="stat"><b>${fams}</b><small>kanji families</small></div></div>
   <p class="muted" style="font-size:14px;text-align:center;margin:12px 0 0">No streaks, no penalties. Take a break whenever you like.</p>
-  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${[...new Set(SOURCES.filter(s=>s.lv===i).map(s=>s.name))].map(esc).join(' · ')}</div></span></button>`).join('')}</div>
+  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${[...new Set(SOURCES.filter(s=>s.lv.includes(i)).map(s=>s.name))].map(esc).join(' · ')}</div></span></button>`).join('')}</div>
   <h2>Your data</h2><div class="card" style="padding:4px 16px">
   <div class="set"><span>Get fresh videos now</span><button class="btn" style="padding:8px 14px" data-act="refresh">Refresh feed</button></div>
   <div class="set"><span>Back up saved words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
