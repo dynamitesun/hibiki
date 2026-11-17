@@ -151,7 +151,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='9';
+const APP_VERSION='10';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -235,7 +235,7 @@ const CH=[
   {name:"時事通信トレンドニュース",id:'UC6Ye6MKEFPjpxnaTXLeBRiA',lv:[2]},
   {name:"MBS 毎日放送",id:'UCXSQ8x4kEjeWNExg0tRABwQ',lv:[2]},
   {name:"YutaNのサブカル流し",id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:[2]},
-  {name:"はじめしゃちょー (hajime)",id:'UCgMPP6RRjktV7krOfyUewqw',lv:[2]},
+  {name:"はじめしゃちょー (hajime)",id:'UCgMPP6RRjktV7krOfyUewqw',lv:[1,2]},
   {name:"木下ゆうか Yuka Kinoshita",id:'UCFTVNLC7ysej-sD5lkLqNGA',lv:[2]},
   {name:"mayukoチャンネル",id:'UClHbaIGALnVB0aoWO-BOpqQ',lv:[2]},
   {name:"マコなり社長",id:'UC7I3QTra4_kC4TSu8f7rHkA',lv:[2]},
@@ -245,22 +245,32 @@ const CH=[
   {name:"GameKnack (QuizKnock)",id:'UCqfyBJL2SvZ_QqqrpCjcwSA',lv:[2]},
   {name:"中田敦彦のYouTube大学",id:'UCFo4kqllbcQ4nV83WCyraiw',lv:[2]},
   {name:"中田敦彦のトーク",id:'UC6kSLiIgAcbXNSxf0JHjy5g',lv:[2]},
-  {name:"HIKAKIN",id:'UClLV6D8S4CrVJL64-aQvwTw',lv:[2]},
+  {name:"HIKAKIN",id:'UClLV6D8S4CrVJL64-aQvwTw',lv:[1,2]},
   {name:"HikakinGames",id:'UCX1xppLvuj03ubLio8jslyA',lv:[2]},
   {name:"日テレ公式チャンネル",id:'UCkLqBWFde2ZJZfqojgpDqyA',lv:[2]},
   {name:"日テレドラマ公式",id:'UCCJge2nWVQwnJj9BxQMecWg',lv:[2]},
-  {name:"料理研究家ゆかり Yukari's Kitchen",id:'UC7LT6gRahCIBd5AO5MUl8dQ',lv:[2]},
+  {name:"料理研究家ゆかり Yukari's Kitchen",id:'UC7LT6gRahCIBd5AO5MUl8dQ',lv:[1,2]},
   {name:"とったび",id:'UCkNSAQZvGzoPHN2UHE9BWcw',lv:[2]},
   {name:"フルタの方程式",id:'UCbf6IAYfPy8CwHVgcHbxmNw',lv:[2]},
   {name:"日テレスポーツ",id:'UCWt0yfrBaUk148rxaOp4b4w',lv:[2]},
   {name:"にじさんじ",id:'UCX7YkU9nEeaoZbkVLVajcMg',lv:[2]},
-  {name:"Fischer's フィッシャーズ",id:'UCibEhpu5HP45-w7Bq1ZIulw',lv:[2]},
+  {name:"Fischer's フィッシャーズ",id:'UCibEhpu5HP45-w7Bq1ZIulw',lv:[1,2]},
   {name:"水溜りボンド",id:'UCpOjLndjOqMoffA-fr8cbKA',lv:[2]},
   {name:"雨穴",id:'UChuwE7hMjONeLU54uC8Vigw',lv:[2]},
   {name:"水ラーメン",id:'UCtKvqtgwAkfyDCAQEIaRbig',lv:[2]},
   {name:"日本科学情報",id:'UCU0KURiKTupBYVCK8rgG7Rw',lv:[2]},
   {name:"古舘伊知郎チャンネル",id:'UCjXDbgbzk9BnpxDnRCempfg',lv:[2]},
-  {name:"NewsPicks",id:'UCfTnJmRQP79C4y_BMF_XrlA',lv:[2]}
+  {name:"NewsPicks",id:'UCfTnJmRQP79C4y_BMF_XrlA',lv:[2]},
+  {name:"エガちゃんねる EGA-CHANNEL",id:'UCL6JY2DXJNDOIqCP1CRADng',lv:[2]},
+  {name:"エガちゃんねる 〜替えのパンツ〜",id:'UCU607BfClX724VqZZ9zWWcA',lv:[2]},
+  {name:"きまぐれクック Kimagure Cook",id:'UCaak9sggUeIBPOd8iK_BXcQ',lv:[1,2]},
+  {name:"きまぐれクックのサボり場",id:'UCEAvwlv0ZtJrSsgaA2CewOw',lv:[1,2]},
+  {name:"キヨ。(Kiyo)",id:'UCMJiPpN_09F0aWpQrgbc_qg',lv:[2]},
+  {name:"牛沢 (Ushizawa)",id:'UCZMRuagdTBKmmrFtSMN48Xw',lv:[2]},
+  {name:"2BRO. 兄者弟者",id:'UC2GuoutVyegg6PUK88lLpjw',lv:[2]},
+  {name:"加藤純一ロードショー",id:'UCZetZElUvdElPrcstRjl9DA',lv:[2]},
+  {name:"ゲーセンミカド",id:'UCPrifqgoJmq7UgmRkZUKTJQ',lv:[2]},
+  {name:"コバキチ",id:'UCEYpPIvtjec24mYJN77wfDg',lv:[1,2]}
 ];
 const longs=ch=>'UULF'+ch.slice(2);
 const SOURCES=[
