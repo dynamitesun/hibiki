@@ -137,6 +137,12 @@ rt{font-size:.45em;color:var(--muted);font-family:'Zen Kaku Gothic New',sans-ser
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
 <script>
+/* ================= error reporter ================= */
+const APP_VERSION='4';
+function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
+b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
+window.addEventListener('error',e=>showErr((e.message||'error')+' @'+(e.lineno||'?')));
+window.addEventListener('unhandledrejection',e=>showErr('Promise: '+(e.reason&&e.reason.message||e.reason)));
 /* ================= basics ================= */
 const LEVELS=[{n:'Beginner',d:'Slow, simple speech (around N5)',k:'初'},{n:'Intermediate',d:'Everyday conversations (N4–N3)',k:'中'},{n:'Advanced',d:'Natural, fast speech (N2+)',k:'上'}];
 const KEY='hibiki-yt-v1';
@@ -154,8 +160,12 @@ const vById=id=>S.videos.find(v=>v.id===id);
 /* ================= tokenizer (kuromoji, in a background worker so the page never freezes) ================= */
 const TK_URL='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js',TK_DIC='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/';
 let tkState='loading',TKW=null;const TOKCACHE=new Map(),TKPEND=new Set();let tkBatch=[],tkTimer=null;
-function startTokenizer(){
-  if(TKW||tkState==='failed')return;
+const TKFLAG='hibiki-tk-attempt';
+try{if(localStorage.getItem(TKFLAG)){tkState='paused'}}catch(e){}
+function startTokenizer(force){
+  if(force){tkState='loading';try{localStorage.removeItem(TKFLAG)}catch(e){}refreshTk()}
+  if(TKW||tkState==='failed'||tkState==='paused'||S.smart===false)return;
+  try{localStorage.setItem(TKFLAG,String(Date.now()))}catch(e){}
   const src=`let tk=null,q=[];
 try{importScripts(${JSON.stringify(TK_URL)});
 kuromoji.builder({dicPath:${JSON.stringify(TK_DIC)}}).build(function(e,t){if(e){postMessage({type:'fail',err:String(e)});return}tk=t;postMessage({type:'ready'});q.forEach(run);q=[]});
@@ -166,22 +176,25 @@ onmessage=function(e){tk?run(e.data):q.push(e.data)};`;
     TKW=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
     TKW.onmessage=e=>{
       const d=e.data;
-      if(d.type==='ready'){tkState='ready';refreshTk()}
-      else if(d.type==='fail'){tkState='failed';console.warn('tokenizer',d.err);refreshTk()}
+      if(d.type==='ready'){tkState='ready';try{localStorage.removeItem(TKFLAG)}catch(_){}refreshTk()}
+      else if(d.type==='fail'){tkState='failed';try{localStorage.removeItem(TKFLAG)}catch(_){}console.warn('tokenizer',d.err);refreshTk()}
       else if(d.type==='tok'){d.texts.forEach((x,i)=>{TOKCACHE.set(x,processRaw(d.res[i]));TKPEND.delete(x)});tokUpdated()}
     };
     TKW.onerror=e=>{tkState='failed';refreshTk()};
   }catch(e){tkState='failed'}
 }
 function requestTok(texts){
-  if(tkState==='failed')return;startTokenizer();
+  if(tkState==='failed'||tkState==='paused'||S.smart===false)return;startTokenizer();
   texts.forEach(x=>{if(x&&!TOKCACHE.has(x)&&!TKPEND.has(x)){TKPEND.add(x);tkBatch.push(x)}});
   if(tkBatch.length&&!tkTimer)tkTimer=setTimeout(()=>{tkTimer=null;const b=tkBatch;tkBatch=[];if(TKW&&b.length)TKW.postMessage(b)},0);
 }
 let tokUpdT=null;
 function tokUpdated(){clearTimeout(tokUpdT);tokUpdT=setTimeout(()=>{if(P)renderCaption(true);else if(R&&$('#rcard'))renderReview()},30)}
 function refreshTk(){const el=$('#tkstatus');if(el)el.outerHTML=tkStatus()}
-function tkStatus(){return `<div class="status" id="tkstatus"><span class="dot ${tkState==='ready'?'ok':tkState==='failed'?'bad':''}"></span>${tkState==='ready'?'Word splitter ready':tkState==='failed'?'Word splitter unavailable — basic mode':'Loading word splitter in the background…'}</div>`}
+function tkStatus(){
+  if(S.smart===false)return `<div class="status" id="tkstatus"><span class="dot"></span>Smart word splitting is off (Me tab)</div>`;
+  if(tkState==='paused')return `<div class="status" id="tkstatus" style="flex-wrap:wrap"><span class="dot bad"></span>Word splitter was skipped because it didn't finish last time. <button class="tg" data-act="tkretry">Try again</button></div>`;
+  return `<div class="status" id="tkstatus"><span class="dot ${tkState==='ready'?'ok':tkState==='failed'?'bad':''}"></span>${tkState==='ready'?'Word splitter ready':tkState==='failed'?'Word splitter unavailable — basic mode':'Loading word splitter in the background…'}</div>`}
 const POS={'名詞':'noun','動詞':'verb','形容詞':'i-adjective','副詞':'adverb','助詞':'particle','助動詞':'auxiliary','連体詞':'pre-noun adjectival','接続詞':'conjunction','感動詞':'interjection','接頭詞':'prefix','フィラー':'filler','記号':'symbol'};
 const GLOSS={'は':'topic marker','が':'subject marker; but','を':'object marker','に':'at, to, in (time / place / target)','で':'at, by, with (place / means)','の':"'s, of; (nominalizer)",'も':'also, too','と':'and, with; (quotation)','から':'because; from','まで':'until, up to','へ':'toward','や':'and (non-exhaustive list)','か':'(question marker); or','ね':'right? (seeks agreement)','よ':'(emphasis — "I tell you")','な':'(links na-adjective); don\'t (prohibition)','けど':'but, though','って':'(quotation) — "that…"','ので':'so, because','のに':'even though','だ':'is (plain copula)','です':'is, am, are (polite)','ます':'(polite verb ending)','た':'(past tense)','ない':'not (negative)','たい':'want to','て':'(and / connective form)','でも':'but; even','ぐらい':'about, around','くらい':'about, around','だけ':'only','より':'than; from','ばかり':'only, just'};
 function processRaw(raw){
@@ -355,12 +368,13 @@ function meV(){
   <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div></span></button>`).join('')}</div>
   <h2>Captions</h2><div class="card" style="padding:4px 16px">
   <div class="set"><span>Furigana above kanji</span><button class="switch ${S.furi?'on':''}" data-act="set" data-k="furi"></button></div>
-  <div class="set"><span>English line (if added)</span><button class="switch ${S.en?'on':''}" data-act="set" data-k="en"></button></div></div>
+  <div class="set"><span>English line (if added)</span><button class="switch ${S.en?'on':''}" data-act="set" data-k="en"></button></div>
+  <div class="set"><span>Smart word splitting<div class="muted" style="font-size:12px">Adds furigana and dictionary forms. Downloads ~17 MB and needs a lot of memory — turn off if the app freezes.</div></span><button class="switch ${S.smart!==false?'on':''}" data-act="smart"></button></div></div>
   <h2>Your data</h2><div class="card" style="padding:4px 16px">
   <div class="set"><span>Back up videos & words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
   <div class="set"><span>Restore from backup</span><button class="btn" style="padding:8px 14px" data-act="import">Paste backup</button></div>
   <div class="set"><span>Remove everything</span><button class="btn" style="padding:8px 14px;color:var(--red)" data-act="reset">Reset</button></div></div>
-  ${tkStatus()}<p class="note">Videos play from YouTube and belong to their creators. Your words and videos are saved in this browser.</p>`;
+  ${tkStatus()}<p class="note">Version ${APP_VERSION} · Videos play from YouTube and belong to their creators. Your words and videos are saved in this browser.</p>`;
 }
 
 /* ================= player ================= */
@@ -532,6 +546,8 @@ document.addEventListener('click',e=>{
     case 'reset':openSheet(`<b style="font-size:18px">Remove everything?</b><p class="muted">This deletes your videos, saved words and review history in this browser.</p><div class="row"><button class="btn grow" data-act="nosheet">Cancel</button><button class="btn primary grow" data-act="doreset">Reset</button></div>`);break;
     case 'doreset':S={...S,videos:[],saved:{},reviews:0};save();closeSheet();render();break;
     case 'startreview':startReview();break;
+    case 'tkretry':startTokenizer(true);break;
+    case 'smart':S.smart=S.smart===false;save();if(S.smart)startTokenizer(tkState==='paused');render();break;
     case 'closer':closeReview();break;
     case 'reveal':R.shown=true;renderReview();break;
     case 'rplay':playClip(R.q[R.i]);break;
@@ -540,6 +556,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(!P||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
   if(e.key===' '){e.preventDefault();const el=document.querySelector('[data-act=pp]');el&&el.click()}else if(e.key==='ArrowRight')seekCue(P.ci+1);else if(e.key==='ArrowLeft')seekCue(P.ci-1);else if(e.key==='r')seekCue(Math.max(0,P.ci),true)});
+window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(R){closeReview();return true}if(P){closePlayer();return true}if(tab!=='watch'){tab='watch';render();return true}return false};
 render();
 setTimeout(()=>{if(S.videos.length)startTokenizer()},1500);
 setInterval(()=>{if(!P&&!R)renderTabs()},60000);
