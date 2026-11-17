@@ -25,6 +25,7 @@ jobs:
         run: python scripts/build_captions.py
         env:
           BUDGET: '60'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Save results
         run: |
           git config user.name "hibiki-bot"

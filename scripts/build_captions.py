@@ -76,7 +76,6 @@ def parse_vtt(text):
     return cues
 
 
-DEBUG = []
 CLIENTS = ["default", "tv", "web_embedded", "mweb", "android_vr", "transcript_api"]
 WORKING = []  # the method that worked last, tried first
 
@@ -130,17 +129,21 @@ def fetch_subs(vid):
 
 # ---------------------------------------------------------------- words
 KATA = re.compile(r"[ァ-ヶ]")
+JP = re.compile(r"[\u3041-\u3096\u30a1-\u30fa\u4e00-\u9fff々ー]")
 to_hira = lambda s: KATA.sub(lambda m: chr(ord(m.group()) - 0x60), s or "")
 POS = {"名詞": "n", "動詞": "v", "形容詞": "a", "副詞": "adv", "助詞": "p", "助動詞": "aux", "連体詞": "adn",
        "接続詞": "conj", "感動詞": "int", "記号": "x", "接頭詞": "pre", "フィラー": "fil"}
 _tok = None
 DICT = {}
+DEBUG = []
 
 
 def load_dict():
     """JMdict (common words, English) from the jmdict-simplified project."""
     try:
-        api = json.load(urllib.request.urlopen("https://api.github.com/repos/scriptin/jmdict-simplified/releases/latest", timeout=60))
+        req = urllib.request.Request("https://api.github.com/repos/scriptin/jmdict-simplified/releases/latest",
+                                     headers={"Authorization": "Bearer " + os.environ["GITHUB_TOKEN"]} if os.environ.get("GITHUB_TOKEN") else {})
+        api = json.load(urllib.request.urlopen(req, timeout=60))
         url = next(a["browser_download_url"] for a in api["assets"] if re.match(r"jmdict-eng-common-.*\.json\.zip$", a["name"]))
         z = zipfile.ZipFile(io.BytesIO(urllib.request.urlopen(url, timeout=120).read()))
         j = json.loads(z.read(z.namelist()[0]))
@@ -153,6 +156,7 @@ def load_dict():
         print("dictionary entries:", len(DICT))
     except Exception as e:
         print("dictionary unavailable:", e)
+        DEBUG.append(f"dictionary unavailable: {e}")
 
 
 def words(text):
@@ -173,6 +177,8 @@ def words(text):
             prev[1] += rd
             continue
         p = POS.get(pos0, "o")
+        if not JP.search(surf):
+            p = "x"  # English words, numbers and symbols aren't offered as Japanese words
         if pos0 == "名詞" and pos1 == "形容動詞語幹":
             p = "na"
         if pos0 == "名詞" and pos1 in ("数", "接尾", "非自立", "代名詞") and p == "n":
