@@ -136,7 +136,6 @@ rt{font-size:.45em;color:var(--muted);font-family:'Zen Kaku Gothic New',sans-ser
 <div class="ov" id="review"><div class="ov-in" id="rbody"></div></div>
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js"></script>
 <script>
 /* ================= basics ================= */
 const LEVELS=[{n:'Beginner',d:'Slow, simple speech (around N5)',k:'初'},{n:'Intermediate',d:'Everyday conversations (N4–N3)',k:'中'},{n:'Advanced',d:'Natural, fast speech (N2+)',k:'上'}];
@@ -152,38 +151,59 @@ const toHira=s=>String(s).replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCode
 const fmt=t=>{t=Math.max(0,Math.floor(t));const h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s).padStart(2,'0')};
 const vById=id=>S.videos.find(v=>v.id===id);
 
-/* ================= tokenizer (kuromoji) ================= */
-let TK=null,tkState='loading';
-try{
-  kuromoji.builder({dicPath:'https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/'}).build((err,t)=>{
-    if(err){tkState='failed';console.warn(err)}else{TK=t;tkState='ready';TOKCACHE.clear()}
-    refreshTk();
-  });
-}catch(e){tkState='failed'}
-function refreshTk(){const el=$('#tkstatus');if(el)el.outerHTML=tkStatus();if(P)renderCaption(true)}
-function tkStatus(){return `<div class="status" id="tkstatus"><span class="dot ${tkState==='ready'?'ok':tkState==='failed'?'bad':''}"></span>${tkState==='ready'?'Word splitter ready':tkState==='failed'?'Word splitter unavailable — basic mode':'Loading word splitter…'}</div>`}
+/* ================= tokenizer (kuromoji, in a background worker so the page never freezes) ================= */
+const TK_URL='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/build/kuromoji.js',TK_DIC='https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict/';
+let tkState='loading',TKW=null;const TOKCACHE=new Map(),TKPEND=new Set();let tkBatch=[],tkTimer=null;
+function startTokenizer(){
+  if(TKW||tkState==='failed')return;
+  const src=`let tk=null,q=[];
+try{importScripts(${JSON.stringify(TK_URL)});
+kuromoji.builder({dicPath:${JSON.stringify(TK_DIC)}}).build(function(e,t){if(e){postMessage({type:'fail',err:String(e)});return}tk=t;postMessage({type:'ready'});q.forEach(run);q=[]});
+}catch(e){postMessage({type:'fail',err:String(e)})}
+function run(texts){postMessage({type:'tok',texts:texts,res:texts.map(function(x){return tk.tokenize(x).map(function(t){return{surface_form:t.surface_form,reading:t.reading,basic_form:t.basic_form,pos:t.pos,pos_detail_1:t.pos_detail_1}})})})}
+onmessage=function(e){tk?run(e.data):q.push(e.data)};`;
+  try{
+    TKW=new Worker(URL.createObjectURL(new Blob([src],{type:'text/javascript'})));
+    TKW.onmessage=e=>{
+      const d=e.data;
+      if(d.type==='ready'){tkState='ready';refreshTk()}
+      else if(d.type==='fail'){tkState='failed';console.warn('tokenizer',d.err);refreshTk()}
+      else if(d.type==='tok'){d.texts.forEach((x,i)=>{TOKCACHE.set(x,processRaw(d.res[i]));TKPEND.delete(x)});tokUpdated()}
+    };
+    TKW.onerror=e=>{tkState='failed';refreshTk()};
+  }catch(e){tkState='failed'}
+}
+function requestTok(texts){
+  if(tkState==='failed')return;startTokenizer();
+  texts.forEach(x=>{if(x&&!TOKCACHE.has(x)&&!TKPEND.has(x)){TKPEND.add(x);tkBatch.push(x)}});
+  if(tkBatch.length&&!tkTimer)tkTimer=setTimeout(()=>{tkTimer=null;const b=tkBatch;tkBatch=[];if(TKW&&b.length)TKW.postMessage(b)},0);
+}
+let tokUpdT=null;
+function tokUpdated(){clearTimeout(tokUpdT);tokUpdT=setTimeout(()=>{if(P)renderCaption(true);else if(R&&$('#rcard'))renderReview()},30)}
+function refreshTk(){const el=$('#tkstatus');if(el)el.outerHTML=tkStatus()}
+function tkStatus(){return `<div class="status" id="tkstatus"><span class="dot ${tkState==='ready'?'ok':tkState==='failed'?'bad':''}"></span>${tkState==='ready'?'Word splitter ready':tkState==='failed'?'Word splitter unavailable — basic mode':'Loading word splitter in the background…'}</div>`}
 const POS={'名詞':'noun','動詞':'verb','形容詞':'i-adjective','副詞':'adverb','助詞':'particle','助動詞':'auxiliary','連体詞':'pre-noun adjectival','接続詞':'conjunction','感動詞':'interjection','接頭詞':'prefix','フィラー':'filler','記号':'symbol'};
 const GLOSS={'は':'topic marker','が':'subject marker; but','を':'object marker','に':'at, to, in (time / place / target)','で':'at, by, with (place / means)','の':"'s, of; (nominalizer)",'も':'also, too','と':'and, with; (quotation)','から':'because; from','まで':'until, up to','へ':'toward','や':'and (non-exhaustive list)','か':'(question marker); or','ね':'right? (seeks agreement)','よ':'(emphasis — "I tell you")','な':'(links na-adjective); don\'t (prohibition)','けど':'but, though','って':'(quotation) — "that…"','ので':'so, because','のに':'even though','だ':'is (plain copula)','です':'is, am, are (polite)','ます':'(polite verb ending)','た':'(past tense)','ない':'not (negative)','たい':'want to','て':'(and / connective form)','でも':'but; even','ぐらい':'about, around','くらい':'about, around','だけ':'only','より':'than; from','ばかり':'only, just'};
-const TOKCACHE=new Map();
+function processRaw(raw){
+  const out=[];
+  raw.forEach(t=>{
+    const r=t.reading&&t.reading!=='*'?toHira(t.reading):'';
+    const base=t.basic_form&&t.basic_form!=='*'?t.basic_form:t.surface_form;
+    const prev=out[out.length-1];
+    const attach=prev&&!prev.punct&&['verb','i-adjective'].includes(prev.headPos)&&(t.pos==='助動詞'||(t.pos==='動詞'&&['非自立','接尾'].includes(t.pos_detail_1))||(t.pos==='助詞'&&t.pos_detail_1==='接続助詞'&&['て','で','ちゃ','じゃ'].includes(t.surface_form))||(t.pos==='形容詞'&&t.pos_detail_1==='非自立'));
+    if(attach){prev.s+=t.surface_form;prev.r+=(r||toHira(t.surface_form));return}
+    let p=POS[t.pos]||t.pos;if(t.pos==='名詞'&&t.pos_detail_1==='形容動詞語幹')p='na-adjective';if(t.pos==='名詞'&&t.pos_detail_1==='固有名詞')p='proper noun';
+    out.push({s:t.surface_form,r:r||toHira(t.surface_form),l:base,p,headPos:p,punct:t.pos==='記号'||/^\s+$/.test(t.surface_form)});
+  });
+  return addPos(out);
+}
+function addPos(out){let pos=0;out.forEach(t=>{t.start=pos;pos+=t.s.length;t.end=pos});return out}
+const BASIC=new Map();
 function tokenize(text){
   if(TOKCACHE.has(text))return TOKCACHE.get(text);
-  let out=[];
-  if(TK){
-    const raw=TK.tokenize(text);
-    raw.forEach(t=>{
-      const r=t.reading&&t.reading!=='*'?toHira(t.reading):'';
-      const base=t.basic_form&&t.basic_form!=='*'?t.basic_form:t.surface_form;
-      const prev=out[out.length-1];
-      const attach=prev&&!prev.punct&&['verb','i-adjective'].includes(prev.headPos)&&(t.pos==='助動詞'||(t.pos==='動詞'&&['非自立','接尾'].includes(t.pos_detail_1))||(t.pos==='助詞'&&t.pos_detail_1==='接続助詞'&&['て','で','ちゃ','じゃ'].includes(t.surface_form))||(t.pos==='形容詞'&&t.pos_detail_1==='非自立'));
-      if(attach){prev.s+=t.surface_form;prev.r+=(r||toHira(t.surface_form));return}
-      let p=POS[t.pos]||t.pos;if(t.pos==='名詞'&&t.pos_detail_1==='形容動詞語幹')p='na-adjective';if(t.pos==='名詞'&&t.pos_detail_1==='固有名詞')p='proper noun';
-      out.push({s:t.surface_form,r:r||toHira(t.surface_form),l:base,p,headPos:p,punct:t.pos==='記号'||/^\s+$/.test(t.surface_form)});
-    });
-  }else{
-    out=(text.match(/[一-鿿々〆]+[ぁ-ゖ]*|[ぁ-ゖー]+|[ァ-ヺー]+|[A-Za-z0-9]+|\s+|./g)||[]).map(s=>({s,r:'',l:s,p:'',punct:/^[\s。、！？!?.,「」『』（）()…・〜~♪]+$/.test(s)}));
-  }
-  let pos=0;out.forEach(t=>{t.start=pos;pos+=t.s.length;t.end=pos});
-  TOKCACHE.set(text,out);return out;
+  requestTok([text]);
+  if(!BASIC.has(text))BASIC.set(text,addPos((text.match(/[\u4e00-\u9fff々〆]+[\u3041-\u3096]*|[\u3041-\u3096ー]+|[\u30a1-\u30faー]+|[A-Za-z0-9]+|\s+|./g)||[]).map(s=>({s,r:'',l:s,p:'',punct:/^[\s。、！？!?.,「」『』（）()…・〜~♪]+$/.test(s)}))));
+  return BASIC.get(text);
 }
 function furi(s,r){
   if(!r||!isK(s)||toHira(s)===r)return esc(s);
@@ -195,9 +215,10 @@ function furi(s,r){
   }catch(e){}
   return `<ruby>${esc(s)}<rt>${esc(r)}</rt></ruby>`;
 }
+const SHOWN=new Map();const shownToks=(vid,ci)=>SHOWN.get(vid+':'+ci)||tokenize(vById(vid).cues[ci].jp);
 function lineHTML(vid,ci,opt={}){
-  const cue=vById(vid).cues[ci];
-  return tokenize(cue.jp).map((t,ti)=>{
+  const cue=vById(vid).cues[ci],toks=tokenize(cue.jp);SHOWN.set(vid+':'+ci,toks);
+  return toks.map((t,ti)=>{
     if(t.punct)return `<span class="tok p">${esc(t.s)}</span>`;
     const c=['tok','w'];if(S.saved[t.l])c.push('saved');if(opt.mark===t.l)c.push('cur','mk');if(opt.hide===t.l)c.push('hid');
     return `<span class="${c.join(' ')}" data-act="word" data-v="${vid}" data-c="${ci}" data-t="${ti}">${furi(t.s,t.r)}</span>`;
@@ -346,7 +367,7 @@ function meV(){
 let P=null,YP=null,poll=null;
 function openVideo(id,t0=null){
   const v=vById(id);if(!v)return;
-  P={v,ci:-1,playing:false,loopEnd:null};
+  P={v,ci:-1,playing:false,loopEnd:null};requestTok(v.cues.map(c=>c.jp));
   $('#player').classList.add('open');document.body.style.overflow='hidden';
   $('#pbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closep">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(v.title||'YouTube video')}</b><a class="muted" style="font-size:12px" href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener">Open on YouTube ↗</a></div><button class="x" data-act="delvid" title="Remove video">🗑</button></div>
   <div class="vwrap"><div id="yt"></div></div><div class="pad" id="pctl"></div>`;
@@ -373,7 +394,7 @@ function tick(){
 }
 function highlight(t){
   const el=$('#jpl');if(!el||P.ci<0)return;const c=P.v.cues[P.ci];
-  const spans=[...el.querySelectorAll('.tok')],toks=tokenize(c.jp),tot=c.jp.length||1;
+  const spans=[...el.querySelectorAll('.tok')],toks=shownToks(P.v.id,P.ci),tot=c.jp.length||1;
   const f=(t-c.s)/Math.max(.5,(c.e-c.s)*.92),pos=f*tot;
   const idx=f>=1||t>c.e?-1:toks.findIndex(k=>k.end>pos);
   spans.forEach((s,j)=>s.classList.toggle('cur',j===idx&&!s.classList.contains('p')));
@@ -405,7 +426,7 @@ function seekCue(i,loop){
 function openSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheetbg').classList.add('open')}
 function closeSheet(){$('#sheetbg').classList.remove('open')}
 function wordSheet(vid,ci,ti){
-  const v=vById(vid),cue=v.cues[ci],t=tokenize(cue.jp)[ti];if(!t)return;
+  const v=vById(vid),cue=v.cues[ci],t=shownToks(vid,ci)[ti];if(!t)return;
   const sv=S.saved[t.l],kanji=[...new Set([...t.l].filter(isK))];
   const fam=kanji.map(k=>[k,Object.values(S.saved).filter(w=>w.l!==t.l&&w.l.includes(k))]).filter(f=>f[1].length);
   const gloss=GLOSS[t.l]||GLOSS[t.s];
@@ -423,7 +444,7 @@ function wordSheet(vid,ci,ti){
   ${P?`<button class="btn wide" style="margin-top:8px" data-act="resume">Resume video</button>`:''}`);
 }
 function saveWord(vid,ci,ti){
-  const v=vById(vid),cue=v.cues[ci],t=tokenize(cue.jp)[ti],note=$('#w-note').value.trim();
+  const v=vById(vid),cue=v.cues[ci],t=shownToks(vid,ci)[ti],note=$('#w-note').value.trim();
   if(S.saved[t.l]){S.saved[t.l].note=note;save();toast('Note updated');closeSheet();return}
   S.saved[t.l]={s:t.s,r:t.r,l:t.l,p:t.p,note,vid,ci,t0:cue.s,t1:cue.e,line:cue.jp,en:cue.en||'',added:Date.now(),lvl:0,due:Date.now()};
   const grew=[...new Set([...t.l].filter(isK))].find(k=>Object.values(S.saved).filter(w=>w.l.includes(k)).length===2);
@@ -520,6 +541,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{if(!P||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
   if(e.key===' '){e.preventDefault();const el=document.querySelector('[data-act=pp]');el&&el.click()}else if(e.key==='ArrowRight')seekCue(P.ci+1);else if(e.key==='ArrowLeft')seekCue(P.ci-1);else if(e.key==='r')seekCue(Math.max(0,P.ci),true)});
 render();
+setTimeout(()=>{if(S.videos.length)startTokenizer()},1500);
 setInterval(()=>{if(!P&&!R)renderTabs()},60000);
 </script>
 </body>
