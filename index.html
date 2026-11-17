@@ -37,7 +37,7 @@ h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--mute
 nav.tabs{position:fixed;left:0;right:0;bottom:0;height:calc(var(--nav) + env(safe-area-inset-bottom));background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 8px env(safe-area-inset-bottom);z-index:5}
 body.feedmode nav.tabs{background:rgba(10,10,10,.92);border-top-color:#222}
 body.feedmode nav.tabs button{color:#999}body.feedmode nav.tabs button.on{color:#fff}
-nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr)}
 nav.tabs button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;font-size:11px;color:var(--muted);font-weight:500;position:relative}
 nav.tabs .ic{font-size:21px;line-height:1.1;font-family:'Klee One',serif}
 nav.tabs button.on{color:var(--red)}
@@ -81,6 +81,15 @@ body:not(.feedmode) #fp{visibility:hidden!important}
 .slide.short .stage{width:auto;height:calc(100% - 175px);aspect-ratio:9/16;max-width:100%;border-radius:14px;overflow:hidden}
 .slide.short{justify-content:flex-start}
 .shortb{background:#ff0033;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;letter-spacing:.04em}
+nav.tabs button{font-size:10.5px}
+.vgrid{display:grid;gap:14px}
+.vcard{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:var(--shadow)}
+.vthumb{position:relative;aspect-ratio:16/9;background:#222 center/cover no-repeat}
+.vplay{position:absolute;left:12px;bottom:12px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.92);color:#111;display:grid;place-items:center}
+.seenb{position:absolute;right:10px;top:10px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:99px}
+.vmeta{padding:10px 14px 12px}.vtitle{font-weight:700;font-size:15px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:1.4em}.vsrc{font-size:13px;color:var(--muted);margin-top:2px}
+.acts.light .act{background:var(--card);color:var(--ink);border:1px solid var(--line)}.acts.light .act.hot{background:var(--red);color:#fff;border-color:var(--red)}
+.spin{margin:0 auto 12px}
 /* ===== sheets & pages ===== */
 .ov{position:fixed;inset:0;background:var(--paper);z-index:20;display:none;overflow-y:auto}
 .ov.open{display:block}
@@ -136,12 +145,13 @@ body:not(.feedmode) #fp{visibility:hidden!important}
 <div id="fp"><div id="fpv"></div><button id="sndbtn" data-act="sound">🔇 Tap for sound</button></div>
 <div id="app"></div>
 <nav class="tabs"><div class="in" id="tabs"></div></nav>
+<div class="ov" id="vplayer"><div class="ov-in" id="vbody"></div></div>
 <div class="ov" id="review"><div class="ov-in" id="rbody"></div></div>
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='6';
+const APP_VERSION='7';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -161,13 +171,14 @@ const CH=[
   {name:'TBS NEWS DIG',id:'UC6AG81pAkf6Lbi_1VC5NmPA',lv:2},
   {name:'YutaNのサブカル流し',id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:2}
 ];
+const longs=ch=>'UULF'+ch.slice(2);
 const SOURCES=[
   ...CH.map(c=>({name:c.name,list:shorts(c.id),lv:c.lv,short:true})),
-  ...CH.map(c=>({name:c.name,list:up(c.id),lv:c.lv})),
+  ...CH.map(c=>({name:c.name,list:longs(c.id),lv:c.lv})),
   {name:'Nihongo con Teppei (Beginners)',list:'PLbsmSVzhiwvA8VNMAW_cuDqujRQULBjFd',lv:0},
   {name:'Easy Japanese — street interviews',list:'PLA5UIoabheFO87Zs0a2W-5ZMzWBjhg_Ap',lv:1}
 ];
-const LEVELS=[{n:'Beginner',d:'Slow, clear Japanese (around N5–N4)',k:'初',mix:[0,0,0,1]},{n:'Intermediate',d:'Everyday conversations (N3)',k:'中',mix:[1,1,1,0,2]},{n:'Advanced',d:'Native speed: news, podcasts (N2+)',k:'上',mix:[2,2,1]}];
+const LEVELS=[{n:'Beginner',d:'Slow, clear Japanese (around N5–N4)',k:'初'},{n:'Intermediate',d:'Everyday conversations (N3)',k:'中'},{n:'Advanced',d:'Native speed: news, podcasts (N2+)',k:'上'}];
 
 /* ================= state ================= */
 const KEY='hibiki-feed-v1';
@@ -209,7 +220,7 @@ function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (n
 let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
 async function buildFeed(){
   if(feedState==='loading')return;feedState='loading';renderFeed();
-  const srcs=SOURCES.filter(s=>LEVELS[S.level].mix.includes(s.lv));
+  const srcs=SOURCES.filter(s=>s.short&&s.lv===S.level);
   const order=[...srcs.filter(s=>s.short),...srcs.filter(s=>!s.short)]; // shorts first so the feed starts fast and snappy
   const lists=[];
   for(let k=0;k<order.length;k+=2){ // two at a time
@@ -225,8 +236,7 @@ async function buildFeed(){
   f.insertAdjacentHTML('beforeend',FEED.slice(keep).map((it,j)=>slideHTML(it,keep+j)).join(''));
 }
 function interleave(lists){
-  const w=LEVELS[S.level].mix,out=[],idx=lists.map(()=>0),seen=new Set();
-  const weight=lists.map(l=>w.filter(x=>x===l.s.lv).length/Math.max(1,lists.filter(m=>m.s.lv===l.s.lv).length)*(l.s.short?1.5:1));
+  const out=[],idx=lists.map(()=>0),seen=new Set(),weight=lists.map(()=>.5);
   let guard=0;
   while(out.length<400&&guard++<5000){
     let any=false;
@@ -243,13 +253,13 @@ function slideHTML(it,i){
   <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.short?'<span class="shortb">Shorts</span> ':''}${esc(it.src.name)}</span><span class="lv">${LEVELS[it.src.lv].n}</span></div>
    <div class="ttl" id="tt${i}">${esc(S.titles[it.id]||'')}</div>
    <div class="acts"><button class="act hot" data-act="saveword" data-i="${i}"><span class="i">＋</span>Save word</button><button class="act" data-act="back5" data-i="${i}"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow" data-i="${i}"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/${it.short?'shorts/':'watch?v='}${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
-   ${i===0?`<div class="hint">Swipe up for the next video</div>`:''}</div></section>`;
+   ${i===0?`<div class="hint">Swipe up for the next short · longer videos are in the Videos tab</div>`:''}</div></section>`;
 }
 function renderFeed(){
   const f=$('#feed');
   $('#lvchip').textContent=S.level!==null?LEVELS[S.level].k+' '+LEVELS[S.level].n:'';
   if(ytFailed){hidePlayer();f.innerHTML=`<div class="loading"><div><b style="color:#fff">Can't reach YouTube</b><p>Check your internet connection, then try again.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Retry</button></div></div>`;return}
-  if(!FEED.length){hidePlayer();f.innerHTML=`<div class="loading"><div><div class="spin"></div>${feedState==='empty'?'<b style="color:#fff">No videos found</b><p>The channels may be temporarily unavailable.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Try again</button>':'Finding Japanese videos for your level…'}</div></div>`;return}
+  if(!FEED.length){hidePlayer();f.innerHTML=`<div class="loading"><div><div class="spin"></div>${feedState==='empty'?'<b style="color:#fff">No Shorts found for this level</b><p>Try the Videos tab for longer videos at your level, or try again later.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Try again</button>':'Finding Japanese Shorts for your level…'}</div></div>`;return}
   active=-1;f.innerHTML=FEED.map(slideHTML).join('');f.scrollTop=0;
   requestAnimationFrame(settle);
 }
@@ -306,9 +316,44 @@ function nextSlide(){const f=$('#feed');if(active<FEED.length-1)f.scrollTo({top:
 function loadTitles(i){for(let k=i;k<Math.min(FEED.length,i+3);k++){const id=FEED[k].id;if(S.titles[id])continue;fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.title){S.titles[id]=j.title;const t=$('#tt'+k);if(t)t.textContent=j.title}}).catch(()=>{})}}
 const fpTime=()=>{try{return plReady?PL.getCurrentTime():0}catch(e){return 0}};
 window.addEventListener('resize',()=>{if(tab==='watch'&&active>=0)placePlayer(active)});
+/* ================= long-form Videos section ================= */
+let VIDS=[],vidState='idle',vidBuilt=false,vidShown=24;
+async function buildVideos(){
+  vidState='loading';if(tab==='videos')render();
+  const srcs=SOURCES.filter(s=>!s.short&&s.lv===S.level),lists=[];
+  for(let k=0;k<srcs.length;k+=2){
+    const got=await Promise.all(srcs.slice(k,k+2).map(fetchList));
+    got.forEach((ids,j)=>{if(ids.length)lists.push({s:srcs[k+j],ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})});
+  }
+  VIDS=interleave(lists).map(x=>({...x,short:false}));vidState=VIDS.length?'ready':'empty';
+  if(tab==='videos')render();
+}
+function videosV(){
+  if(vidState!=='ready')return `<div class="card empty">${vidState==='empty'?'<div class="jp">見</div><b>No videos found</b><p class="muted">The channels may be temporarily unavailable.</p><button class="btn primary" data-act="vretry">Try again</button>':'<div class="spin"></div><b>Finding videos for your level…</b>'}</div>`;
+  const list=VIDS.slice(0,vidShown);
+  setTimeout(()=>list.forEach((it,i)=>{if(!S.titles[it.id])fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+it.id)).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.title){S.titles[it.id]=j.title;const t=document.getElementById('vt'+i);if(t)t.textContent=j.title}}).catch(()=>{})}),50);
+  return `<div class="muted" style="font-size:14px;margin:-4px 2px 12px">${LEVELS[S.level].n} videos · tap one to watch</div><div class="vgrid">${list.map((it,i)=>`<button class="vcard" data-act="openvid" data-i="${i}"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/${it.id}/mqdefault.jpg)">${S.seen[it.id]?'<span class="seenb">Watched</span>':''}<span class="vplay">▶</span></div><div class="vmeta"><div class="vtitle" id="vt${i}">${esc(S.titles[it.id]||'')}</div><div class="vsrc">${esc(it.src.name)}</div></div></button>`).join('')}</div>
+  ${VIDS.length>vidShown?`<button class="btn wide" style="margin-top:14px" data-act="vmore">Show more</button>`:''}`;
+}
+let VP=null,vpReady=false,VCUR=null;
+function openVid(i){
+  const it=VIDS[i];if(!it)return;VCUR=it;hidePlayer();
+  $('#vplayer').classList.add('open');
+  $('#vbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closevid">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.titles[it.id]||it.src.name)}</b><div class="muted" style="font-size:12px">${esc(it.src.name)} · ${LEVELS[it.src.lv].n}</div></div></div>
+  <div class="vwrap"><div id="vpv"></div></div>
+  <div class="pad"><div class="acts light"><button class="act hot" data-act="vsave"><span class="i">＋</span>Save word</button><button class="act" data-act="vback5"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/watch?v=${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
+  <p class="note">Japanese captions turn on automatically when the video has them. Tap CC in the player if they're off.</p></div>`;
+  vpReady=false;
+  whenYT(()=>{VP=new YT.Player('vpv',{videoId:it.id,playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,cc_load_policy:1,cc_lang_pref:'ja',hl:'ja',iv_load_policy:3},
+    events:{onReady:e=>{vpReady=true;try{e.target.setPlaybackRate(S.rate)}catch(_){}const d=e.target.getVideoData&&e.target.getVideoData();if(d&&d.title&&!S.titles[it.id])S.titles[it.id]=d.title},
+      onStateChange:e=>{if(e.data===1&&!S.seen[it.id]){S.seen[it.id]=Date.now();save()}},onError:()=>toast('This video can\'t play here — try another')}})});
+}
+function closeVid(){try{VP&&VP.destroy()}catch(e){}VP=null;vpReady=false;VCUR=null;$('#vplayer').classList.remove('open');render()}
+const vpTime=()=>{try{return vpReady?VP.getCurrentTime():0}catch(e){return 0}};
+
 /* ================= tabs ================= */
 let tab='watch',wordsView='fam';
-const TABS=[['watch','映','Watch'],['review','復','Review'],['words','字','Words'],['me','私','Me']];
+const TABS=[['watch','映','Shorts'],['videos','見','Videos'],['review','復','Review'],['words','字','Words'],['me','私','Me']];
 const due=()=>Object.values(S.saved).filter(w=>w.due<=Date.now());
 function renderTabs(){const d=due().length;$('#tabs').innerHTML=TABS.map(([k,ic,l])=>`<button class="${tab===k?'on':''}" data-act="tab" data-k="${k}"><span class="ic">${ic}</span>${l}${k==='review'&&d?`<span class="badge">${d}</span>`:''}</button>`).join('')}
 function header(){return `<header class="top"><div class="brand"><div class="mark jp">響</div><div><b>Hibiki</b><small>Learn Japanese from real videos</small></div></div></header>`}
@@ -318,7 +363,8 @@ function render(){
   document.body.classList.toggle('feedmode',feedmode);
   if(feedmode){if(!feedBuilt){feedBuilt=true;buildFeed()}else if(!FEED.length)renderFeed();else requestAnimationFrame(()=>{if(active>=0){placePlayer(active);try{plReady&&PL.playVideo()}catch(e){}}else settle()});return}
   hidePlayer();
-  $('#app').innerHTML=header()+(S.level===null?onboardV():({review:reviewV,words:wordsV,me:meV})[tab]());
+  if(tab==='videos'&&S.level!==null&&!vidBuilt){vidBuilt=true;buildVideos()}
+  $('#app').innerHTML=header()+(S.level===null?onboardV():({videos:videosV,review:reviewV,words:wordsV,me:meV})[tab]());
 }
 function onboardV(){
   return `<div class="card" style="text-align:center;padding:22px 18px"><div class="jp" style="font-size:52px;color:var(--red)">ようこそ</div><b style="font-size:20px">Welcome to Hibiki</b>
@@ -349,7 +395,7 @@ function meV(){
   const all=Object.values(S.saved),fams=families().filter(f=>f[1].length>1).length;
   return `<div class="stats3"><div class="stat"><b>${Object.keys(S.seen).length}</b><small>videos watched</small></div><div class="stat"><b>${all.length}</b><small>words saved</small></div><div class="stat"><b>${fams}</b><small>kanji families</small></div></div>
   <p class="muted" style="font-size:14px;text-align:center;margin:12px 0 0">No streaks, no penalties. Take a break whenever you like.</p>
-  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${SOURCES.filter(s=>l.mix.includes(s.lv)).map(s=>esc(s.name)).join(' · ')}</div></span></button>`).join('')}</div>
+  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${[...new Set(SOURCES.filter(s=>s.lv===i).map(s=>s.name))].map(esc).join(' · ')}</div></span></button>`).join('')}</div>
   <h2>Your data</h2><div class="card" style="padding:4px 16px">
   <div class="set"><span>Get fresh videos now</span><button class="btn" style="padding:8px 14px" data-act="refresh">Refresh feed</button></div>
   <div class="set"><span>Back up saved words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
@@ -362,10 +408,13 @@ function meV(){
 function openSheet(h){$('#sheet').innerHTML='<div class="grab"></div>'+h;$('#sheetbg').classList.add('open')}
 function closeSheet(){$('#sheetbg').classList.remove('open')}
 let pendingSave=null;
-function saveWordSheet(i){
+function saveWordSheet(i){ // from the Shorts feed
   const it=FEED[i],t=FP&&FP.i===i?fpTime():0;
   try{FP&&FP.i===i&&FP.p.pauseVideo()}catch(e){}
-  pendingSave={it,t};
+  openSaveSheet(it,t,()=>{try{FP&&FP.p.playVideo()}catch(e){}});
+}
+function openSaveSheet(it,t,resume){
+  pendingSave={it,t,resume};
   openSheet(`<b style="font-size:19px">Save a word from this clip</b>
   <div class="muted" style="font-size:14px;margin-top:2px">${t?`At ${fmt(t)} — the review card will replay this moment.`:'Start the video first to save the exact moment.'}</div>
   <label>Word you heard or saw in the captions</label><input id="sw-word" class="jp" style="font-size:22px" placeholder="例: 電車" autocomplete="off" lang="ja">
@@ -382,7 +431,7 @@ function doSave(){
   S.saved[word]={...(ex||{lvl:0,due:Date.now(),added:Date.now()}),l:word,note:note||(ex&&ex.note)||'',vid:it.id,t0:Math.max(0,t-4),t1:t+1.5,title:S.titles[it.id]||'',srcName:it.src.name};
   const grew=!ex&&[...new Set([...word].filter(isK))].find(k=>Object.values(S.saved).filter(w=>w.l.includes(k)).length===2);
   save();closeSheet();renderTabs();toast(grew?`New kanji family: ${grew} 🎉`:ex?'Updated':'Saved — it\'ll come back in Review');
-  try{FP&&FP.p.playVideo()}catch(e){}
+  pendingSave.resume&&pendingSave.resume();
 }
 function savedSheet(k){
   const w=S.saved[k];if(!w)return;const kanji=[...new Set([...w.l].filter(isK))];
@@ -399,7 +448,7 @@ const IV=[10/60,4,24,72,168,336,720,2160,4320];
 let R=null,RP=null;
 function startReview(single){
   const q=single?[S.saved[single]]:due().sort(()=>Math.random()-.5);if(!q.length)return;
-  hidePlayer();
+  hidePlayer();if(VCUR)closeVid();
   R={q,i:0,shown:!!single,n:q.length,single:!!single};$('#review').classList.add('open');renderReview();
 }
 function closeReview(){try{RP&&RP.destroy()}catch(e){}RP=null;R=null;$('#review').classList.remove('open');render()}
@@ -432,15 +481,21 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;const d=el.dataset;
   switch(d.act){
     case 'tab':tab=d.k;render();scrollTo(0,0);break;
-    case 'setlevel':{const changed=S.level!==+d.i;S.level=+d.i;save();if(changed){FEED=[];feedBuilt=false;feedState='idle';hidePlayer();active=-1}tab='watch';render();break}
+    case 'setlevel':{const changed=S.level!==+d.i;S.level=+d.i;save();if(changed){FEED=[];feedBuilt=false;feedState='idle';hidePlayer();active=-1;VIDS=[];vidBuilt=false;vidState='idle'}tab='watch';render();break}
     case 'sound':soundOn=true;try{PL.unMute();PL.setVolume(100);PL.playVideo()}catch(_){}updateSoundBtn();break;
     case 'saveword':saveWordSheet(+d.i);break;
     case 'back5':if(FP&&FP.i===+d.i){try{FP.p.seekTo(Math.max(0,fpTime()-5),true);FP.p.playVideo()}catch(_){}}break;
-    case 'slow':S.rate=S.rate===1?.75:S.rate===.75?.5:1;save();document.querySelectorAll('.act .rl').forEach(x=>x.textContent=S.rate===1?'Slower':S.rate+'×');try{FP&&FP.p.setPlaybackRate(S.rate)}catch(_){}toast('Speed '+S.rate+'×');break;
+    case 'slow':S.rate=S.rate===1?.75:S.rate===.75?.5:1;save();document.querySelectorAll('.act .rl').forEach(x=>x.textContent=S.rate===1?'Slower':S.rate+'×');try{FP&&FP.p.setPlaybackRate(S.rate)}catch(_){}try{VP&&vpReady&&VP.setPlaybackRate(S.rate)}catch(_){}toast('Speed '+S.rate+'×');break;
     case 'dosave':doSave();break;
-    case 'resumefeed':closeSheet();try{FP&&FP.p.playVideo()}catch(_){}break;
+    case 'resumefeed':closeSheet();pendingSave&&pendingSave.resume&&pendingSave.resume();break;
+    case 'openvid':openVid(+d.i);break;
+    case 'closevid':closeVid();break;
+    case 'vsave':{const t=vpTime();try{VP.pauseVideo()}catch(_){}openSaveSheet(VCUR,t,()=>{try{VP.playVideo()}catch(e){}});break}
+    case 'vback5':try{VP.seekTo(Math.max(0,vpTime()-5),true);VP.playVideo()}catch(_){}break;
+    case 'vmore':vidShown+=24;render();break;
+    case 'vretry':S.lists={};vidBuilt=true;buildVideos();break;
     case 'retry':ytFailed=false;FEED=[];feedState='idle';S.lists={};buildFeed();break;
-    case 'refresh':S.lists={};save();FEED=[];feedBuilt=false;hidePlayer();active=-1;feedState='idle';tab='watch';render();toast('Getting fresh videos…');break;
+    case 'refresh':S.lists={};save();FEED=[];feedBuilt=false;hidePlayer();active=-1;VIDS=[];vidBuilt=false;vidState='idle';feedState='idle';tab='watch';render();toast('Getting fresh videos…');break;
     case 'savedw':savedSheet(d.k);break;
     case 'playclip':closeSheet();startReview(d.k);break;
     case 'unsave':delete S.saved[d.k];save();closeSheet();render();toast('Removed');break;
@@ -459,7 +514,7 @@ document.addEventListener('click',e=>{
   }
 });
 document.addEventListener('keydown',e=>{if(tab!=='watch'||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;const f=$('#feed');if(e.key==='ArrowDown'){e.preventDefault();f.scrollBy({top:f.clientHeight,behavior:'smooth'})}else if(e.key==='ArrowUp'){e.preventDefault();f.scrollBy({top:-f.clientHeight,behavior:'smooth'})}});
-window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(R){closeReview();return true}if(tab!=='watch'&&S.level!==null){tab='watch';render();return true}return false};
+window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(VCUR){closeVid();return true}if(R){closeReview();return true}if(tab!=='watch'&&S.level!==null){tab='watch';render();return true}return false};
 render();
 setInterval(()=>{if(!R)renderTabs()},60000);
 </script>
