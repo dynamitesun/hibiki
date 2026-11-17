@@ -151,7 +151,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='8';
+const APP_VERSION='9';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -161,25 +161,106 @@ window.addEventListener('unhandledrejection',e=>showErr('Promise: '+(e.reason&&e
 // Each source is a YouTube playlist. For a whole channel we use its uploads playlist ("UU" + channel id without "UC").
 const up=ch=>'UU'+ch.slice(2),shorts=ch=>'UUSH'+ch.slice(2);
 const CH=[
-  // Beginner
-  {name:'Nihongo no Jikan (Comprehensible Japanese)',id:'UCXo8kuCtqLjL1EH6m4FJJNA',lv:[0]},
-  {name:'Japanese Immersion with Asami',id:'UCIciBLpZ6BP2XNYTFXb6eRQ',lv:[0]},
-  {name:'Say It in Japanese',id:'UCycmtiNAQkMNLFo_IIkWBPQ',lv:[0]},
-  {name:'Japanese with Shun',id:'UCu6sZrHyl4hSS2PvlUo2XZA',lv:[0]},
-  {name:'Miku Real Japanese',id:'UCsQCbl3a9FtYvA55BxdzYiQ',lv:[0]},
-  // Intermediate
-  {name:'Easy Japanese Podcast (Masa & Asami)',id:'UC16-9M0osgdFbLKXvCwpXaw',lv:[1]},
-  {name:'Haru no Nihongo',id:'UCauyM-A8JIJ9NQcw5_jF00Q',lv:[1]},
-  {name:'Easy Japanese News',id:'UCQEqRIXGkgK44vae8Ye2s4w',lv:[1]},
+  {name:"Nihongo no Jikan (Comprehensible Japanese)",id:'UCXo8kuCtqLjL1EH6m4FJJNA',lv:[0]},
+  {name:"Japanese Immersion with Asami",id:'UCIciBLpZ6BP2XNYTFXb6eRQ',lv:[0]},
+  {name:"Say It in Japanese",id:'UCycmtiNAQkMNLFo_IIkWBPQ',lv:[0]},
+  {name:"Japanese with Shun",id:'UCu6sZrHyl4hSS2PvlUo2XZA',lv:[0]},
+  {name:"Miku Real Japanese",id:'UCsQCbl3a9FtYvA55BxdzYiQ',lv:[0]},
+  {name:"Japanese Ammo with Misa",id:'UCBSyd8tXJoEJKIXfrwkPdbA',lv:[0]},
+  {name:"ToKini Andy",id:'UCsHzgQRjPzOz_w4HSrNLIVw',lv:[0]},
+  {name:"Learn Japanese with Tanaka san",id:'UCvryaJCRHcTVjOC_DcuYxGg',lv:[0]},
+  {name:"ペッパピッグ Peppa Pig (Japanese)",id:'UCldXjuJ7Qg8wTNktOnVXkGw',lv:[0]},
+  {name:"DoraDora Official",id:'UCfgW9rI3ss8ptILrbtXoRHQ',lv:[0]},
+  {name:"Caillou in Japanese",id:'UCt4PWDzZysfHRJTGAEA0VnA',lv:[0]},
+  {name:"Ram Sensei",id:'UC_prLLDljNYCKcDgwE60mVA',lv:[0]},
+  {name:"Aipon Japanese",id:'UCBjvX8gp4higezlNAbbcu6Q',lv:[0]},
+  {name:"Easy Japanese with Yuri",id:'UCn-RIV0Qjxw7fFTPw_jqlcw',lv:[0]},
+  {name:"Megane Japanese Teacher",id:'UC_3yzppm7WmtkhsYFASP_bA',lv:[0]},
+  {name:"Sesame Street in Japanese",id:'UCEQUPKIGWd9gCitecH1S_fA',lv:[0]},
+  {name:"ちびまる子ちゃん",id:'UCBqA04GYbwNh_oP6tJEvYuw',lv:[0]},
+  {name:"Game Gengo",id:'UCsXJuG5tSNRr9IwfjMbNvqQ',lv:[0]},
+  {name:"Sarah Moon Japanese",id:'UC00Mznw4ZNBjsty7wNhx4hg',lv:[0]},
+  {name:"Japanese by Chunking",id:'UClJ3znPvtaV1bjwRdzGJ_Ng',lv:[0]},
+  {name:"Kiku Nihongo",id:'UCadUNjnWpKZ9SJ4uuSr1y9w',lv:[0]},
+  {name:"Nihongo Learning Fujiko to Fujio",id:'UCaln7lmd0AnpUlzpOLSjNaA',lv:[0]},
+  {name:"Japanese with Hanako",id:'UC8yff3CnHH3o8549W6Vnb_Q',lv:[0]},
+  {name:"Japanese with Ayu",id:'UCihcyUvFhqjS4amsG7KiZXg',lv:[0]},
+  {name:"Free Japanese School by Sushi-chan",id:'UCpWSYHUenLuW846kz4H8dTg',lv:[0]},
+  {name:"Genki Japanese",id:'UC3saEl1ytDA54uR_2RTcMPQ',lv:[0]},
+  {name:"Learn Japanese 1616",id:'UCrmnV82dTHQC-cNZ5mbHopQ',lv:[0]},
+  {name:"Organic Japanese with Cure Dolly",id:'UCkdmU8hGK4Fg3LghTVtKltQ',lv:[0]},
+  {name:"Kids Tube",id:'UCw54jAyufLhz31v5bDGju8w',lv:[0]},
+  {name:"Japanese Swotter",id:'UCwvxdbqpigLRiYj6BdS39dg',lv:[0]},
+  {name:"Plain Japanese",id:'UCB9FPvNQ97QuSwnNH-mjMrA',lv:[0]},
+  {name:"Wasabi",id:'UCxn3gpU0BgXVue7MSUSRifA',lv:[0]},
+  {name:"Easy Japanese Podcast (Masa & Asami)",id:'UC16-9M0osgdFbLKXvCwpXaw',lv:[1]},
+  {name:"Haru no Nihongo",id:'UCauyM-A8JIJ9NQcw5_jF00Q',lv:[1]},
+  {name:"Easy Japanese News",id:'UCQEqRIXGkgK44vae8Ye2s4w',lv:[1]},
   {name:"Haru's Japanese Cafe",id:'UClnSFVnyy9PHDUS6I-LKyrQ',lv:[1]},
-  {name:'日本語の森 (Nihongo no Mori)',id:'UCVx6RFaEAg46xfAsD2zz16w',lv:[1]},
-  // Short dramas: native speech, but the acting makes the story easy to follow
-  {name:'こねこフィルム (CONECO FILM)',id:'UCKatN6slu1BFGUnZOTXSBsw',lv:[1,2],shortsOnly:true},
-  {name:'ごっこ倶楽部 (GOKKO CLUB)',id:'UChbyqrxREoPtmUmYaxUAGqA',lv:[1,2],shortsOnly:true},
-  // Advanced
-  {name:'ANNnewsCH',id:'UCGCZAYq5Xxojl_tSXcVJhiQ',lv:[2]},
-  {name:'TBS NEWS DIG',id:'UC6AG81pAkf6Lbi_1VC5NmPA',lv:[2]},
-  {name:'YutaNのサブカル流し',id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:[2]}
+  {name:"日本語の森 (Nihongo no Mori)",id:'UCVx6RFaEAg46xfAsD2zz16w',lv:[1]},
+  {name:"三本塾 Sambon Juku",id:'UC0ujXryUUwILURRKt9Eh7Nw',lv:[1]},
+  {name:"もしもしゆうすけ",id:'UCcCeJ3pQYFgvfVuMxVRWhoA',lv:[1]},
+  {name:"Nihongo to Tabi",id:'UCJUQG9V0DuccWVOw8ovzTsQ',lv:[1]},
+  {name:"Onomappu",id:'UCLuymDHiOySsAQ9Nc-4NoEQ',lv:[1]},
+  {name:"YUYUの日本語Podcast Mini",id:'UCEH5FMOvUh63JMlhhk61fEg',lv:[1]},
+  {name:"Learn Japanese with Noriko",id:'UCodGyt0LcJUDBn4gKE0z0bQ',lv:[1]},
+  {name:"Sayuri Saying",id:'UCqMY-cp1He6IAi1cIz-gX1g',lv:[1]},
+  {name:"Speak Japanese Naturally",id:'UCSbH_BPR_AoARW6RDYLlLog',lv:[1]},
+  {name:"Japanese listening with Anzucotty",id:'UCSy-oh9fWUzcOC3aao2rbQw',lv:[1]},
+  {name:"Benjiro",id:'UChBBWt5H8uZW1LSOh_aPt2Q',lv:[1]},
+  {name:"Arai Channel",id:'UC8TGHIsPBfnQXK39qXpPKZg',lv:[1]},
+  {name:"Midori no Nihongo",id:'UCy82h3EkN-JsNJ2zGT5hX2g',lv:[1]},
+  {name:"Natural Japanese at a glance",id:'UCK7kfq_Wzqv2NObuAZ8whog',lv:[1]},
+  {name:"Japonin",id:'UCEzNYOwIT8hzRZ-YeR0MfjA',lv:[1]},
+  {name:"Nihongo Switch",id:'UCyT0FOewS-UczNAZC4YIMRg',lv:[1]},
+  {name:"Yuki's Japanese TV",id:'UC5l9pe-Z7Jdh4q4ZnBev70w',lv:[1]},
+  {name:"Japanese with Yuka",id:'UCqARUsyVhQA2_P0l1nsO_Hw',lv:[1]},
+  {name:"Japanese Satou-channel",id:'UCHzFLj4Ugd1rn-ODEUk-k9A',lv:[1]},
+  {name:"K Nihongo Channel",id:'UCwqkGdKvrrPF7Oqy35tgYEg',lv:[1]},
+  {name:"Iroha Nihongo Kyoushi",id:'UC2dAAgahQcXpIxvj0HT9mRA',lv:[1]},
+  {name:"Nihongo no Sensei",id:'UCvusabn_pTnsvmcggI98Ytw',lv:[1]},
+  {name:"Shintaro's Japanese room",id:'UCh3XQXrZl-VgND7sEQMJ_Zw',lv:[1]},
+  {name:"Taka Vlog",id:'UCbMK1uImyOd9V9_17gm2NGw',lv:[1]},
+  {name:"Minami Emi no Tsure Radio",id:'UCV6hicnxvUv3jHn3DEeql_g',lv:[1]},
+  {name:"Yukkuri Nihongo",id:'UC_6zpWwHOGRs63KMSgO4Daw',lv:[1]},
+  {name:"Necota's Japanese classroom",id:'UCRueOUh7I2IHP74irBGf1mA',lv:[1]},
+  {name:"こねこフィルム (CONECO FILM)",id:'UCKatN6slu1BFGUnZOTXSBsw',lv:[1,2],shortsOnly:true},
+  {name:"ごっこ倶楽部 (GOKKO CLUB)",id:'UChbyqrxREoPtmUmYaxUAGqA',lv:[1,2],shortsOnly:true},
+  {name:"ANNnewsCH",id:'UCGCZAYq5Xxojl_tSXcVJhiQ',lv:[2]},
+  {name:"TBS NEWS DIG",id:'UC6AG81pAkf6Lbi_1VC5NmPA',lv:[2]},
+  {name:"日テレNEWS",id:'UCuTAXTexrhetbOe3zgskJBQ',lv:[2]},
+  {name:"ABCテレビニュース",id:'UCPW-5qfYGNR8XYrvESrqJKA',lv:[2]},
+  {name:"大阪NEWS (テレビ大阪)",id:'UCd6GEK664CTEWRZda7Fu7Lg',lv:[2]},
+  {name:"時事通信映像センター",id:'UCNLxBzguoGLqXWA8_BtHSHA',lv:[2]},
+  {name:"時事通信トレンドニュース",id:'UC6Ye6MKEFPjpxnaTXLeBRiA',lv:[2]},
+  {name:"MBS 毎日放送",id:'UCXSQ8x4kEjeWNExg0tRABwQ',lv:[2]},
+  {name:"YutaNのサブカル流し",id:'UCdtkKDHDbmC-4nWyJZ9ocig',lv:[2]},
+  {name:"はじめしゃちょー (hajime)",id:'UCgMPP6RRjktV7krOfyUewqw',lv:[2]},
+  {name:"木下ゆうか Yuka Kinoshita",id:'UCFTVNLC7ysej-sD5lkLqNGA',lv:[2]},
+  {name:"mayukoチャンネル",id:'UClHbaIGALnVB0aoWO-BOpqQ',lv:[2]},
+  {name:"マコなり社長",id:'UC7I3QTra4_kC4TSu8f7rHkA',lv:[2]},
+  {name:"FMななももこ",id:'UCAjqcfweHvINAKRN3MD9sNw',lv:[2]},
+  {name:"YUYUの日本語Podcast",id:'UC8dWfySP_cKDMFj6aFfQbFA',lv:[2]},
+  {name:"QuizKnock",id:'UCQ_MqAw18jFTlBB-f8BP7dw',lv:[2]},
+  {name:"GameKnack (QuizKnock)",id:'UCqfyBJL2SvZ_QqqrpCjcwSA',lv:[2]},
+  {name:"中田敦彦のYouTube大学",id:'UCFo4kqllbcQ4nV83WCyraiw',lv:[2]},
+  {name:"中田敦彦のトーク",id:'UC6kSLiIgAcbXNSxf0JHjy5g',lv:[2]},
+  {name:"HIKAKIN",id:'UClLV6D8S4CrVJL64-aQvwTw',lv:[2]},
+  {name:"HikakinGames",id:'UCX1xppLvuj03ubLio8jslyA',lv:[2]},
+  {name:"日テレ公式チャンネル",id:'UCkLqBWFde2ZJZfqojgpDqyA',lv:[2]},
+  {name:"日テレドラマ公式",id:'UCCJge2nWVQwnJj9BxQMecWg',lv:[2]},
+  {name:"料理研究家ゆかり Yukari's Kitchen",id:'UC7LT6gRahCIBd5AO5MUl8dQ',lv:[2]},
+  {name:"とったび",id:'UCkNSAQZvGzoPHN2UHE9BWcw',lv:[2]},
+  {name:"フルタの方程式",id:'UCbf6IAYfPy8CwHVgcHbxmNw',lv:[2]},
+  {name:"日テレスポーツ",id:'UCWt0yfrBaUk148rxaOp4b4w',lv:[2]},
+  {name:"にじさんじ",id:'UCX7YkU9nEeaoZbkVLVajcMg',lv:[2]},
+  {name:"Fischer's フィッシャーズ",id:'UCibEhpu5HP45-w7Bq1ZIulw',lv:[2]},
+  {name:"水溜りボンド",id:'UCpOjLndjOqMoffA-fr8cbKA',lv:[2]},
+  {name:"雨穴",id:'UChuwE7hMjONeLU54uC8Vigw',lv:[2]},
+  {name:"水ラーメン",id:'UCtKvqtgwAkfyDCAQEIaRbig',lv:[2]},
+  {name:"日本科学情報",id:'UCU0KURiKTupBYVCK8rgG7Rw',lv:[2]},
+  {name:"古舘伊知郎チャンネル",id:'UCjXDbgbzk9BnpxDnRCempfg',lv:[2]},
+  {name:"NewsPicks",id:'UCfTnJmRQP79C4y_BMF_XrlA',lv:[2]}
 ];
 const longs=ch=>'UULF'+ch.slice(2);
 const SOURCES=[
@@ -220,7 +301,7 @@ function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (n
       let done=false,p;
       const finish=ids=>{if(done)return;done=true;try{p.destroy()}catch(e){}host.remove();
         if(ids){S.lists[src.list]={t:Date.now(),ids:ids.slice(0,120)};save();res(S.lists[src.list].ids)}else res(c?c.ids:[])};
-      setTimeout(()=>finish(null),9000);
+      setTimeout(()=>finish(null),7000);
       p=new YT.Player(el,{width:200,height:120,playerVars:{listType:'playlist',list:src.list,autoplay:0,mute:1},
         events:{onReady:()=>{let n=0;const iv=setInterval(()=>{n++;let ids=null;try{ids=p.getPlaylist()}catch(e){}if(ids&&ids.length){clearInterval(iv);finish(ids)}else if(n>16){clearInterval(iv);finish([])}},300)},
           onError:()=>finish([])}});
@@ -228,20 +309,29 @@ function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (n
   });
 }
 let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
+const fresh=src=>{const c=S.lists[src.list];return c&&Date.now()-c.t<DAY};
+async function gatherLists(srcs,onBatch){ // cached channels show instantly; up to 10 new ones are fetched per session
+  const lists=[],add=(s,ids)=>{if(ids&&ids.length)lists.push({s,ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})};
+  const cached=srcs.filter(fresh),todo=shuffle(srcs.filter(x=>!fresh(x))).slice(0,10);
+  cached.forEach(x=>add(x,S.lists[x.list].ids));
+  if(lists.length)onBatch(lists,false);
+  for(let k=0;k<todo.length;k+=3){
+    const got=await Promise.all(todo.slice(k,k+3).map(fetchList));
+    got.forEach((ids,j)=>add(todo[k+j],ids));
+    if(lists.length)onBatch(lists,k+3>=todo.length);
+  }
+  if(!todo.length)onBatch(lists,true);
+  return lists;
+}
 async function buildFeed(){
   if(feedState==='loading')return;feedState='loading';renderFeed();
   const srcs=SOURCES.filter(s=>s.short&&s.lv.includes(S.level));
-  const order=[...srcs.filter(s=>s.short),...srcs.filter(s=>!s.short)]; // shorts first so the feed starts fast and snappy
-  const lists=[];
-  for(let k=0;k<order.length;k+=2){ // two at a time
-    const got=await Promise.all(order.slice(k,k+2).map(fetchList));
-    got.forEach((ids,j)=>{if(ids.length)lists.push({s:order[k+j],ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})});
-    if(lists.length&&!FEED.length){FEED=interleave(lists);feedState='partial';renderFeed()}
-  }
-  const all=interleave(lists);
-  if(!FEED.length){FEED=all;feedState=all.length?'ready':'empty';renderFeed();return}
-  const keep=Math.min(FEED.length,Math.max(active,0)+3),head=FEED.slice(0,keep),have=new Set(head.map(x=>x.id));
-  FEED=head.concat(all.filter(x=>!have.has(x.id)));feedState='ready';
+  const lists=await gatherLists(srcs,(lists,last)=>{if(!FEED.length){FEED=interleave(lists);feedState=last?'ready':'partial';renderFeed()}else mergeFeed(lists)});
+  if(!FEED.length){feedState='empty';renderFeed()}else feedState='ready';
+}
+function mergeFeed(lists){
+  const all=interleave(lists),keep=Math.min(FEED.length,Math.max(active,0)+3),head=FEED.slice(0,keep),have=new Set(head.map(x=>x.id));
+  FEED=head.concat(all.filter(x=>!have.has(x.id)));
   const f=$('#feed');f.querySelectorAll('.slide').forEach(el=>{if(+el.dataset.i>=keep)el.remove()});
   f.insertAdjacentHTML('beforeend',FEED.slice(keep).map((it,j)=>slideHTML(it,keep+j)).join(''));
 }
@@ -330,13 +420,9 @@ window.addEventListener('resize',()=>{if(tab==='watch'&&active>=0)placePlayer(ac
 let VIDS=[],vidState='idle',vidBuilt=false,vidShown=24;
 async function buildVideos(){
   vidState='loading';if(tab==='videos')render();
-  const srcs=SOURCES.filter(s=>!s.short&&s.lv.includes(S.level)),lists=[];
-  for(let k=0;k<srcs.length;k+=2){
-    const got=await Promise.all(srcs.slice(k,k+2).map(fetchList));
-    got.forEach((ids,j)=>{if(ids.length)lists.push({s:srcs[k+j],ids:shuffle(ids.filter(id=>!S.seen[id])).concat(shuffle(ids.filter(id=>S.seen[id])))})});
-  }
-  VIDS=interleave(lists).map(x=>({...x,short:false}));vidState=VIDS.length?'ready':'empty';
-  if(tab==='videos')render();
+  const srcs=SOURCES.filter(s=>!s.short&&s.lv.includes(S.level));
+  await gatherLists(srcs,lists=>{VIDS=interleave(lists).map(x=>({...x,short:false}));vidState='ready';if(tab==='videos'&&!VCUR)render()});
+  if(!VIDS.length){vidState='empty';if(tab==='videos')render()}
 }
 function videosV(){
   if(vidState!=='ready')return `<div class="card empty">${vidState==='empty'?'<div class="jp">見</div><b>No videos found</b><p class="muted">The channels may be temporarily unavailable.</p><button class="btn primary" data-act="vretry">Try again</button>':'<div class="spin"></div><b>Finding videos for your level…</b>'}</div>`;
