@@ -80,6 +80,7 @@ body:not(.feedmode) #fp{visibility:hidden!important}
 #sndbtn{position:absolute;right:10px;top:10px;z-index:2;display:none;align-items:center;gap:6px;background:rgba(0,0,0,.65);color:#fff;font-weight:700;font-size:13px;padding:8px 12px;border-radius:99px;backdrop-filter:blur(6px)}
 .slide.short .stage{width:auto;height:calc(100% - 175px);aspect-ratio:9/16;max-width:100%;border-radius:14px;overflow:hidden}
 .slide.short{justify-content:flex-start}
+.nicob{background:#252525!important;border:1px solid #555}
 .shortb{background:#ff0033;color:#fff;font-size:10px;font-weight:800;padding:2px 6px;border-radius:5px;letter-spacing:.04em}
 nav.tabs button{font-size:10.5px}
 .vgrid{display:grid;gap:14px}
@@ -158,7 +159,7 @@ nav.tabs button{font-size:10.5px}
 <body>
 <div class="feedtop"><div class="mark jp">響</div><b>Hibiki</b><button class="chip" id="lvchip" data-act="tab" data-k="me"></button></div>
 <div id="feed"></div>
-<div id="fp"><div id="fpv"></div><button id="sndbtn" data-act="sound">🔇 Tap for sound</button></div>
+<div id="fp"><div id="fpv"></div><div id="fpn" style="display:none;position:absolute;inset:0"></div><button id="sndbtn" data-act="sound">🔇 Tap for sound</button></div>
 <div id="app"></div>
 <nav class="tabs"><div class="in" id="tabs"></div></nav>
 <div class="ov" id="vplayer"><div class="ov-in" id="vbody"></div></div>
@@ -167,7 +168,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='11';
+const APP_VERSION='12';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -316,6 +317,41 @@ window.onYouTubeIframeAPIReady=()=>{ytReady=true;ytWait.splice(0).forEach(f=>f()
 let ytFailed=false;
 const whenYT=f=>ytReady?f():ytWait.push(f);
 
+/* ================= Niconico (embedded player, controlled by postMessage) ================= */
+let NICO=[],NICO_SRCS=[];
+const nicoReady=fetch('data/nico.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[]).then(list=>{
+  NICO=Array.isArray(list)?list:[];const g={};
+  NICO.forEach(v=>{S.titles[v.id]=S.titles[v.id]||v.t;const k=v.tag+'|'+v.short+'|'+v.lv.join(',');(g[k]=g[k]||{name:'ニコニコ動画 #'+v.tag,nico:true,short:v.short,lv:v.lv,ids:[]}).ids.push(v.id)});
+  NICO_SRCS=Object.values(g);
+});
+const NTH={};nicoReady.then(()=>NICO.forEach(v=>NTH[v.id]=v.th));
+function NicoPlayer(container,id,o={}){
+  const me=this,pid='hb'+Math.random().toString(36).slice(2,8);
+  me.ready=false;me.t=0;me.unit=1;me.len=0;me.status=0;me.muted=!!o.muted;me.isNico=true;
+  const f=document.createElement('iframe');
+  f.src=`https://embed.nicovideo.jp/watch/${id}?jsapi=1&playerId=${pid}`+(o.from?`&from=${Math.floor(o.from)}`:'');
+  f.allow='autoplay; fullscreen';f.setAttribute('allowfullscreen','');f.style.cssText='position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
+  container.appendChild(f);me.f=f;
+  const send=(eventName,data)=>{try{f.contentWindow.postMessage({eventName,data,sourceConnectorType:1,playerId:pid},'https://embed.nicovideo.jp')}catch(e){}};
+  me.l=e=>{
+    if(e.origin!=='https://embed.nicovideo.jp'||e.source!==f.contentWindow)return;
+    const d=e.data||{},x=d.data||{};
+    if(d.eventName==='loadComplete'){me.len=(x.videoInfo&&x.videoInfo.lengthInSeconds)||0;me.ready=true;send('mute',{mute:me.muted});o.onReady&&o.onReady(me,x.videoInfo||{})}
+    else if(d.eventName==='playerMetadataChange'){if(me.len&&x.duration)me.unit=x.duration>me.len*5?1000:1;me.t=(x.currentTime||0)/me.unit;if(typeof x.muted==='boolean')me.muted=x.muted;o.onTime&&o.onTime(me.t)}
+    else if(d.eventName==='playerStatusChange'||d.eventName==='statusChange'){me.status=x.playerStatus;if(x.playerStatus===2)o.onPlay&&o.onPlay();if(x.playerStatus===4)o.onEnd&&o.onEnd()}
+    else if(d.eventName==='error'){o.onError&&o.onError(x.code||'error')}
+  };
+  window.addEventListener('message',me.l);
+  me.playVideo=()=>send('play');me.pauseVideo=()=>send('pause');
+  me.seekTo=sec=>send('seek',{time:Math.max(0,sec)*me.unit});
+  me.getCurrentTime=()=>me.t;me.getPlayerState=()=>me.status===2?1:2;
+  me.mute=()=>{me.muted=true;send('mute',{mute:true})};me.unMute=()=>{me.muted=false;send('mute',{mute:false})};me.isMuted=()=>me.muted;
+  me.setVolume=v=>send('volumeChange',{volume:v/100});me.setPlaybackRate=()=>{};me.getVideoData=()=>({});
+  me.destroy=()=>{window.removeEventListener('message',me.l);f.remove()};
+}
+const thumbOf=(it,size)=>it.nico?(NTH[it.id]||''):`https://i.ytimg.com/vi/${it.id}/${size||'hqdefault'}.jpg`;
+const watchUrl=it=>it.nico?`https://www.nicovideo.jp/watch/${it.id}`:`https://www.youtube.com/${it.short?'shorts/':'watch?v='}${it.id}`;
+
 /* ================= building the feed ================= */
 const DAY=864e5;
 function fetchList(src){ // a tiny hidden player reads a playlist's video IDs (no API key needed)
@@ -338,8 +374,8 @@ let FEED=[],feedState='idle',active=-1,FP=null,feedBuilt=false;
 const fresh=src=>{const c=S.lists[src.list];return c&&Date.now()-c.t<DAY};
 async function gatherLists(srcs,onBatch){ // cached channels show instantly; up to 10 new ones are fetched per session
   const lists=[],add=(s,ids)=>{if(ids&&ids.length){const fresh=ids.filter(id=>!S.seen[id]);lists.push({s,ids:shuffle(fresh.filter(hasWords)).concat(shuffle(fresh.filter(id=>!hasWords(id))),shuffle(ids.filter(id=>S.seen[id])))})}};
-  const cached=srcs.filter(fresh),todo=shuffle(srcs.filter(x=>!fresh(x))).slice(0,10);
-  cached.forEach(x=>add(x,S.lists[x.list].ids));
+  const cached=srcs.filter(x=>x.nico||fresh(x)),todo=shuffle(srcs.filter(x=>!x.nico&&!fresh(x))).slice(0,10);
+  cached.forEach(x=>add(x,x.nico?x.ids:S.lists[x.list].ids));
   if(lists.length)onBatch(lists,false);
   for(let k=0;k<todo.length;k+=3){
     const got=await Promise.all(todo.slice(k,k+3).map(fetchList));
@@ -351,7 +387,8 @@ async function gatherLists(srcs,onBatch){ // cached channels show instantly; up 
 }
 async function buildFeed(){
   if(feedState==='loading')return;feedState='loading';renderFeed();
-  const srcs=SOURCES.filter(s=>s.short&&s.lv.includes(S.level));
+  await Promise.race([nicoReady,new Promise(r=>setTimeout(r,3000))]);
+  const srcs=SOURCES.filter(s=>s.short&&s.lv.includes(S.level)).concat(NICO_SRCS.filter(s=>s.short&&s.lv.includes(S.level)));
   const lists=await gatherLists(srcs,(lists,last)=>{if(!FEED.length){FEED=interleave(lists);feedState=last?'ready':'partial';renderFeed()}else mergeFeed(lists)});
   if(!FEED.length){feedState='empty';renderFeed()}else feedState='ready';
 }
@@ -366,7 +403,7 @@ function interleave(lists){
   let guard=0;
   while(out.length<400&&guard++<5000){
     let any=false;
-    lists.forEach((l,i)=>{const take=Math.max(1,Math.round(weight[i]*2));for(let k=0;k<take;k++){if(idx[i]<l.ids.length){const id=l.ids[idx[i]++];if(!seen.has(id)){seen.add(id);out.push({id,src:l.s,short:!!l.s.short})}any=true}}});
+    lists.forEach((l,i)=>{const take=Math.max(1,Math.round(weight[i]*2));for(let k=0;k<take;k++){if(idx[i]<l.ids.length){const id=l.ids[idx[i]++];if(!seen.has(id)){seen.add(id);out.push({id,src:l.s,short:!!l.s.short&&!l.s.nico,nico:!!l.s.nico})}any=true}}});
     if(!any)break;
   }
   for(let i=0;i<out.length;i+=6){const part=shuffle(out.slice(i,i+6));out.splice(i,part.length,...part)}
@@ -374,11 +411,11 @@ function interleave(lists){
 }
 const thumb=it=>`https://i.ytimg.com/vi/${it.id}/${it.short?'oar2':'hqdefault'}.jpg`;
 function slideHTML(it,i){
-  return `<section class="slide ${it.short?'short':''}" data-i="${i}"><div class="bg" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"></div>
-  <div class="stage" id="st${i}" style="background-image:url(https://i.ytimg.com/vi/${it.id}/hqdefault.jpg)"></div>
-  <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.short?'<span class="shortb">Shorts</span> ':''}${esc(it.src.name)}</span><span class="lv">${LEVELS[S.level].n}</span></div>
+  return `<section class="slide ${it.short?'short':''}" data-i="${i}"><div class="bg" style="background-image:url(${thumbOf(it)})"></div>
+  <div class="stage" id="st${i}" style="background-image:url(${thumbOf(it)})"></div>
+  <div class="info"><div class="src"><span class="grow" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${it.nico?'<span class="shortb nicob">niconico</span> ':it.short?'<span class="shortb">Shorts</span> ':''}${esc(it.src.name)}</span><span class="lv">${LEVELS[S.level].n}</span></div>
    <div class="ttl" id="tt${i}">${esc(S.titles[it.id]||'')}</div>
-   <div class="acts"><button class="act hot" data-act="saveword" data-i="${i}"><span class="i">＋</span>Save word</button><button class="act" data-act="back5" data-i="${i}"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow" data-i="${i}"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/${it.short?'shorts/':'watch?v='}${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
+   <div class="acts"><button class="act hot" data-act="saveword" data-i="${i}"><span class="i">＋</span>Save word</button><button class="act" data-act="back5" data-i="${i}"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow" data-i="${i}"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="${watchUrl(it)}" target="_blank" rel="noopener"><span class="i">↗</span>${it.nico?'niconico':'YouTube'}</a></div>
    ${i===0?`<div class="hint">Swipe up for the next short · longer videos are in the Videos tab</div>`:''}</div></section>`;
 }
 function renderFeed(){
@@ -390,13 +427,15 @@ function renderFeed(){
   requestAnimationFrame(settle);
 }
 /* --- the single player: sits on top of the active slide and switches videos as you swipe --- */
-let PL=null,plReady=false,soundOn=/; wv\)|\bwv\b/.test(navigator.userAgent),scrollT=null,lastTop=0;
+let PL=null,NP=null,plReady=false,soundOn=/; wv\)|\bwv\b/.test(navigator.userAgent),scrollT=null,lastTop=0;
 function stageRect(i){const st=$('#st'+i);return st?st.getBoundingClientRect():null}
 function placePlayer(i){
   const r=stageRect(i),box=$('#fp');if(!r||!box)return;
   Object.assign(box.style,{top:r.top+'px',left:r.left+'px',width:r.width+'px',height:r.height+'px',visibility:'visible'});
 }
-function hidePlayer(){const box=$('#fp');if(box)box.style.visibility='hidden';try{PL&&plReady&&PL.pauseVideo()}catch(e){}}
+const curNico=()=>!!(FEED[active]&&FEED[active].nico);
+const CP=()=>curNico()?NP:PL;const cpReady=()=>curNico()?!!(NP&&NP.ready):plReady;
+function hidePlayer(){const box=$('#fp');if(box)box.style.visibility='hidden';try{PL&&plReady&&PL.pauseVideo()}catch(e){}try{NP&&NP.pauseVideo()}catch(e){}}
 function onFeedScroll(){
   const f=$('#feed');
   if(Math.abs(f.scrollTop-lastTop)>8&&active>=0){$('#fp').style.visibility='hidden'}
@@ -405,7 +444,7 @@ function onFeedScroll(){
 function settle(){
   const f=$('#feed');if(!f.clientHeight||!FEED.length||tab!=='watch')return;
   lastTop=f.scrollTop;const i=Math.round(f.scrollTop/f.clientHeight);
-  if(i===active){placePlayer(i);try{plReady&&PL.playVideo()}catch(e){}return}
+  if(i===active){placePlayer(i);try{cpReady()&&CP().playVideo()}catch(e){}return}
   activate(i);
   if(i>FEED.length-6&&feedState==='ready'&&FEED.length<400){} // feed is long; nothing to do
 }
@@ -413,6 +452,19 @@ function activate(i){
   if(i<0||i>=FEED.length)return;
   active=i;const it=FEED[i];loadTitles(i);
   placePlayer(i);updateSoundBtn();
+  if(it.nico){
+    try{plReady&&PL.pauseVideo()}catch(e){}
+    $('#fpv').style.display='none';const box=$('#fpn');box.style.display='block';
+    try{NP&&NP.destroy()}catch(e){}
+    NP=new NicoPlayer(box,it.id,{muted:!soundOn,
+      onReady:(p,info)=>{if(active!==i)return;p.playVideo();FP={i,p};if(info.title&&!S.titles[it.id]){S.titles[it.id]=info.title;const t=$('#tt'+i);if(t)t.textContent=info.title}updateSoundBtn()},
+      onPlay:()=>{if(!S.seen[it.id]){S.seen[it.id]=Date.now();save()}},
+      onEnd:()=>{if(active===i)nextSlide()},
+      onError:()=>{if(active===i){toast('This video can\'t play here — skipping');setTimeout(()=>{if(active===i)nextSlide()},700)}}});
+    FP={i,p:NP};return;
+  }
+  if(NP){try{NP.destroy()}catch(e){}NP=null}
+  $('#fpn').style.display='none';$('#fpv').style.display='';
   whenYT(()=>{
     if(active!==i)return;
     if(!PL){
@@ -433,20 +485,22 @@ function onPlState(e){
 }
 function applySound(){
   try{if(soundOn){PL.unMute();PL.setVolume(100)}else PL.mute()}catch(e){}
+  if(curNico())return;
   // if the phone blocked playback with sound, fall back to muted so it still plays
   const i=active;setTimeout(()=>{try{if(active===i&&PL.getPlayerState()!==1&&PL.getPlayerState()!==3&&!PL.isMuted()){PL.mute();PL.playVideo();soundOn=false}}catch(e){}updateSoundBtn()},1600);
   updateSoundBtn();
 }
-function updateSoundBtn(){const b=$('#sndbtn');if(!b)return;let muted=!soundOn;try{if(plReady)muted=PL.isMuted()}catch(e){}b.style.display=muted?'flex':'none'}
+function updateSoundBtn(){const b=$('#sndbtn');if(!b)return;let muted=!soundOn;try{if(cpReady())muted=CP().isMuted()}catch(e){}b.style.display=muted?'flex':'none'}
 function nextSlide(){const f=$('#feed');if(active<FEED.length-1)f.scrollTo({top:(active+1)*f.clientHeight,behavior:'smooth'})}
 function loadTitles(i){for(let k=i;k<Math.min(FEED.length,i+3);k++){const id=FEED[k].id;if(S.titles[id])continue;fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id)).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.title){S.titles[id]=j.title;const t=$('#tt'+k);if(t)t.textContent=j.title}}).catch(()=>{})}}
-const fpTime=()=>{try{return plReady?PL.getCurrentTime():0}catch(e){return 0}};
+const fpTime=()=>{try{return cpReady()?CP().getCurrentTime():0}catch(e){return 0}};
 window.addEventListener('resize',()=>{if(tab==='watch'&&active>=0)placePlayer(active)});
 /* ================= long-form Videos section ================= */
 let VIDS=[],vidState='idle',vidBuilt=false,vidShown=24;
 async function buildVideos(){
   vidState='loading';if(tab==='videos')render();
-  const srcs=SOURCES.filter(s=>!s.short&&s.lv.includes(S.level));
+  await Promise.race([nicoReady,new Promise(r=>setTimeout(r,3000))]);
+  const srcs=SOURCES.filter(s=>!s.short&&s.lv.includes(S.level)).concat(NICO_SRCS.filter(s=>!s.short&&s.lv.includes(S.level)));
   await gatherLists(srcs,lists=>{VIDS=interleave(lists).map(x=>({...x,short:false}));vidState='ready';if(tab==='videos'&&!VCUR)render()});
   if(!VIDS.length){vidState='empty';if(tab==='videos')render()}
 }
@@ -454,7 +508,7 @@ function videosV(){
   if(vidState!=='ready')return `<div class="card empty">${vidState==='empty'?'<div class="jp">見</div><b>No videos found</b><p class="muted">The channels may be temporarily unavailable.</p><button class="btn primary" data-act="vretry">Try again</button>':'<div class="spin"></div><b>Finding videos for your level…</b>'}</div>`;
   const list=VIDS.slice(0,vidShown);
   setTimeout(()=>list.forEach((it,i)=>{if(!S.titles[it.id])fetch('https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+it.id)).then(r=>r.ok?r.json():null).then(j=>{if(j&&j.title){S.titles[it.id]=j.title;const t=document.getElementById('vt'+i);if(t)t.textContent=j.title}}).catch(()=>{})}),50);
-  return `<div class="muted" style="font-size:14px;margin:-4px 2px 12px">${LEVELS[S.level].n} videos · tap one to watch</div><div class="vgrid">${list.map((it,i)=>`<button class="vcard" data-act="openvid" data-i="${i}"><div class="vthumb" style="background-image:url(https://i.ytimg.com/vi/${it.id}/mqdefault.jpg)">${S.seen[it.id]?'<span class="seenb">Watched</span>':''}<span class="vplay">▶</span></div><div class="vmeta"><div class="vtitle" id="vt${i}">${esc(S.titles[it.id]||'')}</div><div class="vsrc">${esc(it.src.name)}</div></div></button>`).join('')}</div>
+  return `<div class="muted" style="font-size:14px;margin:-4px 2px 12px">${LEVELS[S.level].n} videos · tap one to watch</div><div class="vgrid">${list.map((it,i)=>`<button class="vcard" data-act="openvid" data-i="${i}"><div class="vthumb" style="background-image:url(${thumbOf(it,'mqdefault')})">${it.nico?'<span class="seenb" style="left:10px;right:auto;background:#252525">niconico</span>':''}${S.seen[it.id]?'<span class="seenb">Watched</span>':''}<span class="vplay">▶</span></div><div class="vmeta"><div class="vtitle" id="vt${i}">${esc(S.titles[it.id]||'')}</div><div class="vsrc">${esc(it.src.name)}</div></div></button>`).join('')}</div>
   ${VIDS.length>vidShown?`<button class="btn wide" style="margin-top:14px" data-act="vmore">Show more</button>`:''}`;
 }
 let VP=null,vpReady=false,VCUR=null;
@@ -463,9 +517,10 @@ function openVid(i){
   $('#vplayer').classList.add('open');
   $('#vbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closevid">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.titles[it.id]||it.src.name)}</b><div class="muted" style="font-size:12px">${esc(it.src.name)} · ${LEVELS[S.level].n}</div></div></div>
   <div class="vwrap"><div id="vpv"></div></div>
-  <div class="pad"><div class="acts light"><button class="act hot" data-act="vsave"><span class="i">＋</span>Save word</button><button class="act" data-act="vback5"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="https://www.youtube.com/watch?v=${it.id}" target="_blank" rel="noopener"><span class="i">↗</span>YouTube</a></div>
+  <div class="pad"><div class="acts light"><button class="act hot" data-act="vsave"><span class="i">＋</span>Save word</button><button class="act" data-act="vback5"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="${watchUrl(it)}" target="_blank" rel="noopener"><span class="i">↗</span>${it.nico?'niconico':'YouTube'}</a></div>
   <p class="note">Japanese captions turn on automatically when the video has them. Tap CC in the player if they're off.</p></div>`;
   vpReady=false;
+  if(it.nico){VP=new NicoPlayer($('#vpv').parentNode,it.id,{onReady:p=>{vpReady=true;p.playVideo()},onPlay:()=>{if(!S.seen[it.id]){S.seen[it.id]=Date.now();save()}},onError:()=>toast('This video can\'t play here — try another')});return}
   whenYT(()=>{VP=new YT.Player('vpv',{videoId:it.id,playerVars:{autoplay:1,playsinline:1,rel:0,modestbranding:1,cc_load_policy:1,cc_lang_pref:'ja',hl:'ja',iv_load_policy:3},
     events:{onReady:e=>{vpReady=true;try{e.target.setPlaybackRate(S.rate)}catch(_){}const d=e.target.getVideoData&&e.target.getVideoData();if(d&&d.title&&!S.titles[it.id])S.titles[it.id]=d.title},
       onStateChange:e=>{if(e.data===1&&!S.seen[it.id]){S.seen[it.id]=Date.now();save()}},onError:()=>toast('This video can\'t play here — try another')}})});
@@ -483,7 +538,7 @@ function render(){
   renderTabs();
   const feedmode=S.level!==null&&tab==='watch';
   document.body.classList.toggle('feedmode',feedmode);
-  if(feedmode){if(!feedBuilt){feedBuilt=true;buildFeed()}else if(!FEED.length)renderFeed();else requestAnimationFrame(()=>{if(active>=0){placePlayer(active);try{plReady&&PL.playVideo()}catch(e){}}else settle()});return}
+  if(feedmode){if(!feedBuilt){feedBuilt=true;buildFeed()}else if(!FEED.length)renderFeed();else requestAnimationFrame(()=>{if(active>=0){placePlayer(active);try{cpReady()&&CP().playVideo()}catch(e){}}else settle()});return}
   hidePlayer();
   if(tab==='videos'&&S.level!==null&&!vidBuilt){vidBuilt=true;buildVideos()}
   $('#app').innerHTML=header()+(S.level===null?onboardV():({videos:videosV,review:reviewV,words:wordsV,me:meV})[tab]());
@@ -517,7 +572,7 @@ function meV(){
   const all=Object.values(S.saved),fams=families().filter(f=>f[1].length>1).length;
   return `<div class="stats3"><div class="stat"><b>${Object.keys(S.seen).length}</b><small>videos watched</small></div><div class="stat"><b>${all.length}</b><small>words saved</small></div><div class="stat"><b>${fams}</b><small>kanji families</small></div></div>
   <p class="muted" style="font-size:14px;text-align:center;margin:12px 0 0">No streaks, no penalties. Take a break whenever you like.</p>
-  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${[...new Set(SOURCES.filter(s=>s.lv.includes(i)).map(s=>s.name))].map(esc).join(' · ')}</div></span></button>`).join('')}</div>
+  <h2>Level</h2><div class="lvpick">${LEVELS.map((l,i)=>`<button class="lvopt ${S.level===i?'on':''}" data-act="setlevel" data-i="${i}"><span class="k">${l.k}</span><span class="grow"><b>${l.n}</b><div class="muted" style="font-size:14px">${l.d}</div><div class="srclist">${[...new Set(SOURCES.filter(s=>s.lv.includes(i)).map(s=>s.name))].map(esc).join(' · ')}${i>0?' · ニコニコ動画 ('+[...new Set(NICO.filter(v=>v.lv.includes(i)).map(v=>'#'+v.tag))].join(' ')+')':''}</div></span></button>`).join('')}</div>
   <h2>Your data</h2><div class="card" style="padding:4px 16px">
   <div class="set"><span>Get fresh videos now</span><button class="btn" style="padding:8px 14px" data-act="refresh">Refresh feed</button></div>
   <div class="set"><span>Back up saved words</span><button class="btn" style="padding:8px 14px" data-act="export">Copy backup</button></div>
@@ -599,7 +654,7 @@ function pickWord(src){
   if(ex){delete S.saved[key];save();toast('Removed');renderSW();renderTabs();return}
   const t=SW.t,line=cue?cue[2].map(x=>x[0]).join(''):(S.titles[SW.it.id]||'');
   S.saved[key]={lvl:0,due:Date.now(),added:Date.now(),l:key,s:w[0],r:w[1],note:w[3]||'',p:w[4],vid:SW.it.id,
-    t0:cue?Math.max(0,cue[0]-0.4):Math.max(0,t-4),t1:cue?cue[1]+0.4:t+1.5,line,title:S.titles[SW.it.id]||'',srcName:SW.it.src.name};
+    t0:cue?Math.max(0,cue[0]-0.4):Math.max(0,t-4),t1:cue?cue[1]+0.4:t+1.5,line,nico:!!SW.it.nico,title:S.titles[SW.it.id]||'',srcName:SW.it.src.name};
   const grew=[...new Set([...key].filter(isK))].find(k=>Object.values(S.saved).filter(x=>x.l.includes(k)).length===2);
   save();renderTabs();renderSW();
   $('#swdetail').innerHTML=`<div class="card" style="margin-top:12px;padding:12px"><div class="row"><div class="grow"><div class="jp" style="font-size:26px">${furiW(w[0],w[1])}</div>${key!==w[0]?`<div class="muted" style="font-size:13px">dictionary form <span class="jp">${esc(key)}</span></div>`:''}</div><a class="tg" href="https://jisho.org/search/${encodeURIComponent(key)}" target="_blank" rel="noopener">Jisho ↗</a></div><div style="font-weight:700;margin-top:4px">${esc(w[3]||'Tap Jisho for the meaning')}</div><div class="muted" style="font-size:13px;margin-top:4px">✓ Saved${grew?` · new kanji family: ${grew} 🎉`:''}</div></div>`;
@@ -607,7 +662,7 @@ function pickWord(src){
 function doSave(){
   const word=$('#sw-word').value.trim();if(!word){toast('Type the word first');return}
   const {it,t}=pendingSave,note=$('#sw-note').value.trim(),ex=S.saved[word];
-  S.saved[word]={...(ex||{lvl:0,due:Date.now(),added:Date.now()}),l:word,note:note||(ex&&ex.note)||'',vid:it.id,t0:Math.max(0,t-4),t1:t+1.5,title:S.titles[it.id]||'',srcName:it.src.name};
+  S.saved[word]={...(ex||{lvl:0,due:Date.now(),added:Date.now()}),l:word,note:note||(ex&&ex.note)||'',vid:it.id,nico:!!it.nico,t0:Math.max(0,t-4),t1:t+1.5,title:S.titles[it.id]||'',srcName:it.src.name};
   const grew=!ex&&[...new Set([...word].filter(isK))].find(k=>Object.values(S.saved).filter(w=>w.l.includes(k)).length===2);
   save();closeSheet();renderTabs();toast(grew?`New kanji family: ${grew} 🎉`:ex?'Updated':'Saved — it\'ll come back in Review');
   pendingSave.resume&&pendingSave.resume();
@@ -648,10 +703,18 @@ function renderReview(){
   if(!R.loaded){R.loaded=1;playClip(w)}
 }
 function playClip(w){
+  const wrap=$('#rvid')&&$('#rvid').closest('.vwrap')||document.querySelector('#rbody .vwrap');
+  if(w.nico){
+    try{RP&&RP.destroy()}catch(e){}RP=null;if(wrap)wrap.innerHTML='<div id="rvid"></div>';
+    const p=new NicoPlayer(wrap,w.vid,{muted:false,onReady:pp=>{pp.seekTo(w.t0);pp.playVideo()},onTime:t=>{if(!p.done&&t>=w.t1){p.done=true;p.pauseVideo()}}});
+    RP=p;return;
+  }
+  if(RP&&RP.isNico){try{RP.destroy()}catch(e){}RP=null;if(wrap)wrap.innerHTML='<div id="rvid"></div>'}
   const go=()=>{try{RP.loadVideoById({videoId:w.vid,startSeconds:w.t0,endSeconds:w.t1})}catch(e){}};
   if(RP&&RP.loadVideoById)return go();
   whenYT(()=>{RP=new YT.Player('rvid',{videoId:w.vid,playerVars:{playsinline:1,rel:0,modestbranding:1,start:Math.floor(w.t0),end:Math.ceil(w.t1),cc_load_policy:1,cc_lang_pref:'ja',hl:'ja'},events:{onReady:()=>go()}})});
 }
+
 function grade(g){const w=R.q[R.i],l=nextLvl(w,g);w.lvl=l;w.due=Date.now()+IV[l]*36e5;S.saved[w.l]=w;S.reviews++;save();if(g==='again')R.q.push(w);R.i++;R.shown=false;R.loaded=0;renderReview()}
 
 /* ================= events ================= */
@@ -662,7 +725,7 @@ document.addEventListener('click',e=>{
   switch(d.act){
     case 'tab':tab=d.k;render();scrollTo(0,0);break;
     case 'setlevel':{const changed=S.level!==+d.i;S.level=+d.i;save();if(changed){FEED=[];feedBuilt=false;feedState='idle';hidePlayer();active=-1;VIDS=[];vidBuilt=false;vidState='idle'}tab='watch';render();break}
-    case 'sound':soundOn=true;try{PL.unMute();PL.setVolume(100);PL.playVideo()}catch(_){}updateSoundBtn();break;
+    case 'sound':soundOn=true;try{const p=CP();p.unMute();p.setVolume(100);p.playVideo()}catch(_){}updateSoundBtn();break;
     case 'saveword':saveWordSheet(+d.i);break;
     case 'back5':if(FP&&FP.i===+d.i){try{FP.p.seekTo(Math.max(0,fpTime()-5),true);FP.p.playVideo()}catch(_){}}break;
     case 'slow':S.rate=S.rate===1?.75:S.rate===.75?.5:1;save();document.querySelectorAll('.act .rl').forEach(x=>x.textContent=S.rate===1?'Slower':S.rate+'×');try{FP&&FP.p.setPlaybackRate(S.rate)}catch(_){}try{VP&&vpReady&&VP.setPlaybackRate(S.rate)}catch(_){}toast('Speed '+S.rate+'×');break;
