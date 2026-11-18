@@ -24,6 +24,13 @@ def download(vid):
     return files[0]
 
 
+def audio16k(path):
+    import numpy as np
+    raw = subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-i", path, "-ac", "1", "-ar", "16000", "-f", "s16le", "-"],
+                         capture_output=True, check=True, timeout=300).stdout
+    return np.frombuffer(raw, np.int16).astype(np.float32) / 32768.0
+
+
 def clean(segs):
     out, last = [], ""
     for s in segs:
@@ -55,20 +62,22 @@ def main():
         if time.time() - t0 > MINUTES * 60:
             break
         vid = v["id"]
+        err = ""
+        t1 = time.time()
         try:
             path = download(vid)
-            segs, _ = model.transcribe(path, language="ja", vad_filter=True, beam_size=1,
+            segs, _ = model.transcribe(audio16k(path), language="ja", vad_filter=True, beam_size=1,
                                        condition_on_previous_text=False, initial_prompt="こんにちは。今日は、")
             cues = clean(list(segs))
         except Exception as e:
             LOG.append(f"  {vid} failed: {e}")
-            cues = []
+            cues, err = [], str(e)
         rec = {"title": v["t"], "tw": bc.words(v["t"]), "cues": [[s, e, bc.words(line)] for s, e, line in cues], "src": "whisper"}
         json.dump(rec, open(os.path.join(bc.CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
         old = index.get(vid, {})
-        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues else 1), "g": bool(bc.DICT), "w": 1}
+        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1}
         done += bool(cues)
-        print(f"  {vid}: {len(cues)} lines  {v['t'][:40]}", flush=True)
+        print(f"  {vid}: {len(cues)} lines in {int(time.time() - t1)}s  {v['t'][:40]}", flush=True)
         json.dump(index, open(idx_path, "w"), separators=(",", ":"))
     LOG.append(f"whisper: {done} videos got subtitles in {int(time.time() - t0)}s")
     with open(os.path.join(bc.DATA, "debug.txt"), "a") as f:
