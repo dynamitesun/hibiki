@@ -624,12 +624,12 @@ function tickCaps(){
   if(box){let key='',html='';const it=FEED[active];
     if(document.body.classList.contains('feedmode')&&it&&hasWords(it.id)&&!SW){
       const rec=CAPS.get(it.id);if(rec===undefined)loadCap(it.id);
-      const i=capNow(rec,fpTime());if(i>=0){key=it.id+i;html=`<span class="ln" data-act="saveword" data-i="${active}">${capLine(rec.cues[i])}<small>tap to save a word</small></span>`}}
+      const i=capNow(rec,fpTime());if(i>=0){key=it.id+i;html=`<span class="ln" data-act="saveword" data-i="${active}">${capLine(rec.cues[i])}<small>${rec.src==='whisper'?'auto subtitles · ':''}tap to save a word</small></span>`}}
     if(key!==LC.feed){LC.feed=key;box.innerHTML=html}}
   const vb=$('#vcap');
   if(vb){let key='',html='';
     if(VCUR&&hasWords(VCUR.id)&&!SW){const rec=CAPS.get(VCUR.id);if(rec===undefined)loadCap(VCUR.id);
-      const i=capNow(rec,vpTime());if(i>=0){key=VCUR.id+i;html=`<span class="ln" data-act="vsave">${capLine(rec.cues[i])}<small>tap to save a word</small></span>`}}
+      const i=capNow(rec,vpTime());if(i>=0){key=VCUR.id+i;html=`<span class="ln" data-act="vsave">${capLine(rec.cues[i])}<small>${rec.src==='whisper'?'auto subtitles · ':''}tap to save a word</small></span>`}}
     if(key!==LC.vid){LC.vid=key;vb.innerHTML=html}}
 }
 setInterval(tickCaps,250);

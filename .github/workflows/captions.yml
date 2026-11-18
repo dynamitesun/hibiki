@@ -30,7 +30,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.cache/huggingface
-          key: whisper-small
+          key: whisper-large-v3-turbo
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install faster-whisper
       - name: Make subtitles for Niconico videos (Whisper)
         run: python scripts/nico_whisper.py

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_captions as bc
 
 MINUTES = float(os.environ.get("MINUTES", "35"))
-MODEL = os.environ.get("WHISPER_MODEL", "small")
+MODEL = os.environ.get("WHISPER_MODEL", "large-v3-turbo")
 TMP = os.path.join(bc.ROOT, ".tmp_audio")
 LOG = []
 
@@ -52,8 +52,13 @@ def main():
     nico = json.load(open(os.path.join(bc.DATA, "nico.json"), encoding="utf-8"))
     idx_path = os.path.join(bc.DATA, "index.json")
     index = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
-    todo = [v for v in sorted(nico, key=lambda v: (not v["short"], v["len"]))
-            if not index.get(v["id"], {}).get("n") and index.get(v["id"], {}).get("tries", 0) < 2 and v["len"] <= 900]
+    def need(v):
+        e = index.get(v["id"], {})
+        if v["len"] > 900 or e.get("tries", 0) >= 2:
+            return False
+        return not e.get("n") or (e.get("w") and e.get("m") != MODEL)  # none yet, or made with an older model
+    todo = sorted([v for v in nico if need(v)],
+                  key=lambda v: (bool(index.get(v["id"], {}).get("n")), not v["short"], v["len"]))
     LOG.append(f"whisper: {len(todo)} videos waiting")
     bc.load_dict()
     subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)  # stop early if it's missing
@@ -67,16 +72,18 @@ def main():
         t1 = time.time()
         try:
             path = download(vid)
-            segs, _ = model.transcribe(audio16k(path), language="ja", vad_filter=True, beam_size=1,
+            segs, _ = model.transcribe(audio16k(path), language="ja", vad_filter=True, beam_size=2,
                                        condition_on_previous_text=False, initial_prompt="こんにちは。今日は、")
             cues = clean(list(segs))
         except Exception as e:
             LOG.append(f"  {vid} failed: {e}")
             cues, err = [], str(e)
+        if not cues and index.get(vid, {}).get("n"):
+            continue  # keep the older subtitles
         rec = {"title": v["t"], "tw": bc.words(v["t"]), "cues": [[s, e, bc.words(line)] for s, e, line in cues], "src": "whisper"}
         json.dump(rec, open(os.path.join(bc.CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
         old = index.get(vid, {})
-        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "ffmpeg" in err or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1}
+        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "ffmpeg" in err or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1, "m": MODEL}
         done += bool(cues)
         print(f"  {vid}: {len(cues)} lines in {int(time.time() - t1)}s  {v['t'][:40]}", flush=True)
         json.dump(index, open(idx_path, "w"), separators=(",", ":"))
