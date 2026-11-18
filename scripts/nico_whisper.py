@@ -2,7 +2,7 @@
 """Make timed Japanese subtitles for Niconico videos with Whisper (speech-to-text),
 split them into words, and save them in data/cap/<id>.json for the app.
 Runs after build_captions.py, which writes data/nico.json."""
-import glob, json, os, subprocess, sys, time
+import glob, json, os, re, subprocess, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import build_captions as bc
 
@@ -31,10 +31,20 @@ def audio16k(path):
     return np.frombuffer(raw, np.int16).astype(np.float32) / 32768.0
 
 
+HALLU = re.compile(r"ご視聴|視聴ありがとう|チャンネル登録|おやすみなさい|お疲れ様でした|字幕|次の動画|最後まで見て|^ありがとうございました。?$|^はい。?$")
+REPEAT = re.compile(r"(.{1,8}?)\1{3,}")
+
+
+def enough(cues):
+    """music-only clips come back as one or two made-up lines; keep only real talk"""
+    talk = [c for c in cues if not HALLU.search(c[2])]
+    return len(talk) >= 4 and sum(len(c[2]) for c in talk) >= 30
+
+
 def clean(segs):
     out, last = [], ""
     for s in segs:
-        t = s.text.strip().replace(" ", "")
+        t = REPEAT.sub(r"\1\1", s.text.strip().replace(" ", ""))
         if not t or not bc.JP.search(t):
             continue
         if s.no_speech_prob > 0.6 or s.avg_logprob < -1.0 or s.compression_ratio > 2.4:
@@ -75,6 +85,8 @@ def main():
             segs, _ = model.transcribe(audio16k(path), language="ja", vad_filter=True, beam_size=2,
                                        condition_on_previous_text=False, initial_prompt="こんにちは。今日は、")
             cues = clean(list(segs))
+            if not enough(cues):
+                err, cues = "no speech", []
         except Exception as e:
             LOG.append(f"  {vid} failed: {e}")
             cues, err = [], str(e)
@@ -83,7 +95,7 @@ def main():
         rec = {"title": v["t"], "tw": bc.words(v["t"]), "cues": [[s, e, bc.words(line)] for s, e, line in cues], "src": "whisper"}
         json.dump(rec, open(os.path.join(bc.CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
         old = index.get(vid, {})
-        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "ffmpeg" in err or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1, "m": MODEL}
+        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": 2 if err == "no speech" else old.get("tries", 0) + (0 if cues or "ffmpeg" in err or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1, "m": MODEL}
         done += bool(cues)
         print(f"  {vid}: {len(cues)} lines in {int(time.time() - t1)}s  {v['t'][:40]}", flush=True)
         json.dump(index, open(idx_path, "w"), separators=(",", ":"))
