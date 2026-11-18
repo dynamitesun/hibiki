@@ -23,13 +23,13 @@ Could not retrieve a transcript for the video https://www.youtube.com/watch?v=F2
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
-1fp3bA5skVw [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-1fp3bA5skVw [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-1fp3bA5skVw [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-1fp3bA5skVw [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-1fp3bA5skVw [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-1fp3bA5skVw [transcript_api] RequestBlocked: 
-Could not retrieve a transcript for the video https://www.youtube.com/watch?v=1fp3bA5skVw! This is most likely caused by:
+ZoA6qrU0_GY [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ZoA6qrU0_GY [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ZoA6qrU0_GY [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ZoA6qrU0_GY [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ZoA6qrU0_GY [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+ZoA6qrU0_GY [transcript_api] RequestBlocked: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=ZoA6qrU0_GY! This is most likely caused by:
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
@@ -52,4 +52,8 @@ whisper: 488 videos waiting
   sm42732891 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
   sm43542351 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
   sm44420806 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-whisper: 103 videos got subtitles in 2413s
+  sm47046685 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
+  sm42956589 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
+  sm45464243 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
+  sm42956636 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
+whisper: 76 videos got subtitles in 2414s
