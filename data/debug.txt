@@ -13,217 +13,43 @@ niconico #ゲーム実況 long: 2
 niconico #切り抜き short: 72
 niconico #切り抜き long: 73
 niconico total: 522
-DEt6vN4EQ5g [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-DEt6vN4EQ5g [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-DEt6vN4EQ5g [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-DEt6vN4EQ5g [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-DEt6vN4EQ5g [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-DEt6vN4EQ5g [transcript_api] RequestBlocked: 
-Could not retrieve a transcript for the video https://www.youtube.com/watch?v=DEt6vN4EQ5g! This is most likely caused by:
+F2rwuQkLd2M [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+F2rwuQkLd2M [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+F2rwuQkLd2M [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+F2rwuQkLd2M [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+F2rwuQkLd2M [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+F2rwuQkLd2M [transcript_api] RequestBlocked: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=F2rwuQkLd2M! This is most likely caused by:
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
-9tacALGVng4 [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9tacALGVng4 [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9tacALGVng4 [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9tacALGVng4 [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9tacALGVng4 [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9tacALGVng4 [transcript_api] RequestBlocked: 
-Could not retrieve a transcript for the video https://www.youtube.com/watch?v=9tacALGVng4! This is most likely caused by:
+1fp3bA5skVw [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+1fp3bA5skVw [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+1fp3bA5skVw [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+1fp3bA5skVw [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+1fp3bA5skVw [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+1fp3bA5skVw [transcript_api] RequestBlocked: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=1fp3bA5skVw! This is most likely caused by:
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
-9Q11A088SSo [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9Q11A088SSo [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9Q11A088SSo [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9Q11A088SSo [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9Q11A088SSo [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-9Q11A088SSo [transcript_api] RequestBlocked: 
-Could not retrieve a transcript for the video https://www.youtube.com/watch?v=9Q11A088SSo! This is most likely caused by:
+MCm2h1Qaycs [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+MCm2h1Qaycs [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+MCm2h1Qaycs [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+MCm2h1Qaycs [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+MCm2h1Qaycs [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+MCm2h1Qaycs [transcript_api] RequestBlocked: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=MCm2h1Qaycs! This is most likely caused by:
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
 YouTube is blocking subtitle downloads from this machine; skipping subtitles this run. Add a YT_COOKIES secret to fix.
 working method: []
 whisper: 488 videos waiting
-  sm42555061 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42587815 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42549194 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42604834 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43190742 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42734086 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42861896 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42740608 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43761087 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42417675 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43060745 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42595585 failed: [Errno 2] No such file or directory: 'ffmpeg'
   sm46354660 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-  sm46318268 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44325328 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43267515 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43805318 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44595020 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43078111 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42478881 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42479975 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm45146053 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44283518 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43139866 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41818864 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44853962 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41790497 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41832237 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44423543 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44511490 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41934443 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42560393 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41687308 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43818011 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46306060 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42690437 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42715298 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43003224 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42350639 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42543286 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43676891 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42114810 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42146771 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42449586 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41827467 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43056308 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44758720 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm45629065 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42563429 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42302275 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42433262 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42351236 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43330524 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46542910 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44183813 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44288098 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42134422 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41824352 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43097647 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42637189 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42287416 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42642178 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41925407 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41915525 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41817307 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42939444 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43155347 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43068005 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41645947 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41872792 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41910385 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42212949 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43663011 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm45912059 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42160063 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42103643 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42193533 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42283625 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41842220 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42226836 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41854797 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44331852 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46172337 failed: [Errno 2] No such file or directory: 'ffmpeg'
   sm45001873 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
   sm43793263 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-  sm42025951 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41649341 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42981736 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43777086 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42010442 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42174274 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41868378 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41921443 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42252463 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41938788 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41877732 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43460507 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42046415 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43994974 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41755845 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42416193 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46211199 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42286343 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42464726 failed: [Errno 2] No such file or directory: 'ffmpeg'
   sm42732891 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-  sm46277411 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42238691 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43717403 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41830572 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41808368 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44211068 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42379538 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42081310 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44810392 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43829157 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41785640 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42441815 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42747300 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42754911 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44800007 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44112510 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42734366 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43646142 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43098848 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44595543 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44577240 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41819727 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42017399 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44584647 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42846217 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44590019 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46176725 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44129257 failed: [Errno 2] No such file or directory: 'ffmpeg'
   sm43542351 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-  sm43316815 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42459949 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42085447 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42737307 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43358429 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43203915 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43821567 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44085319 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm45786854 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44059667 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44558220 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44531559 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43206006 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44985620 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41624576 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42560778 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42965410 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42157733 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43203859 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43298386 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43564935 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44429804 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44187727 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm45654840 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42491317 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43827846 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42383331 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44012261 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42446159 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41892773 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44094936 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42839397 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44602222 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42598049 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41656713 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42317177 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44481786 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44860491 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm44304458 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm46807036 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm43098252 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42938267 failed: [Errno 2] No such file or directory: 'ffmpeg'
   sm44420806 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-  sm46004694 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm41913265 failed: [Errno 2] No such file or directory: 'ffmpeg'
-  sm42793604 failed: [Errno 2] No such file or directory: 'ffmpeg'
-whisper: 0 videos got subtitles in 2417s
+whisper: 103 videos got subtitles in 2413s
