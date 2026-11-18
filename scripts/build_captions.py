@@ -199,6 +199,53 @@ def words(text):
     return out
 
 
+# ---------------------------------------------------------------- niconico
+NICO_TAGS = {"料理": [1, 2], "簡単レシピ": [1, 2], "あるある": [1, 2], "街頭インタビュー": [1, 2],
+             "日常": [2], "ゲーム実況": [2], "雑談": [2], "切り抜き": [2]}
+
+
+def nico_search(tag, short):
+    from urllib.parse import urlencode
+    p = {"q": tag, "targets": "tagsExact", "fields": "contentId,title,lengthSeconds,viewCounter,thumbnailUrl,startTime",
+         "filters[startTime][gte]": "2023-01-01T00:00:00+09:00", "_sort": "-viewCounter", "_limit": "60", "_context": "hibiki-app"}
+    if short:
+        p["filters[lengthSeconds][lte]"] = "180"
+    else:
+        p["filters[lengthSeconds][gt]"] = "180"
+        p["filters[lengthSeconds][lte]"] = "1500"
+    req = urllib.request.Request("https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search?" + urlencode(p),
+                                 headers={"User-Agent": "hibiki-app (github.com/dynamitesun/hibiki)"})
+    j = json.load(urllib.request.urlopen(req, timeout=30))
+    return [v for v in j.get("data", []) if str(v.get("contentId", "")).startswith("sm")]  # channel videos often can't be embedded
+
+
+def build_nico():
+    out, seen = [], set()
+    for tag, lv in NICO_TAGS.items():
+        for short in (True, False):
+            try:
+                vids = nico_search(tag, short)
+            except Exception as e:
+                DEBUG.append(f"niconico {tag} failed: {e}")
+                continue
+            DEBUG.append(f"niconico #{tag} {'short' if short else 'long'}: {len(vids)}")
+            for v in vids:
+                vid = v["contentId"]
+                if vid in seen:
+                    continue
+                seen.add(vid)
+                out.append({"id": vid, "t": v.get("title", ""), "len": v.get("lengthSeconds", 0), "th": v.get("thumbnailUrl", ""),
+                            "lv": lv, "tag": tag, "short": short})
+                cap = os.path.join(CAP, vid + ".json")
+                if not os.path.exists(cap) or not json.load(open(cap)).get("tw"):
+                    json.dump({"title": v.get("title", ""), "tw": words(v.get("title", "")), "cues": []},
+                              open(cap, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+            time.sleep(1)
+    if out:
+        json.dump(out, open(os.path.join(DATA, "nico.json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+    DEBUG.append(f"niconico total: {len(out)}")
+
+
 # ---------------------------------------------------------------- main
 def main():
     os.makedirs(CAP, exist_ok=True)
@@ -208,6 +255,12 @@ def main():
     idx_path = os.path.join(DATA, "index.json")
     index = json.load(open(idx_path)) if os.path.exists(idx_path) else {}
     load_dict()
+    try:
+        build_nico()
+    except Exception as e:
+        DEBUG.append(f"niconico failed: {e}")
+    json.dump(index, open(idx_path, "w"), separators=(",", ":"))
+    open(os.path.join(DATA, "debug.txt"), "w").write("\n".join(DEBUG) + "\n")
     queues = []
     for ch in channels():
         todo = []
