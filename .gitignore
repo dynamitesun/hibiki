@@ -1,3 +1,4 @@
 .tmp_subs/
 __pycache__/
 .tmp_cookies.txt
+.tmp_audio/

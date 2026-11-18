@@ -74,6 +74,11 @@ body.feedmode .feedtop{display:flex}
 .loading{height:100%;display:grid;place-items:center;text-align:center;color:#aaa;padding:30px}
 .spin{width:34px;height:34px;border:3px solid #333;border-top-color:var(--red);border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 12px}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+.lcap{position:absolute;left:8px;right:8px;bottom:14%;z-index:4;text-align:center;pointer-events:none}
+.lcap .ln{display:inline-block;pointer-events:auto;background:rgba(0,0,0,.72);color:#fff;font-size:21px;line-height:1.9;padding:2px 12px 4px;border-radius:10px;cursor:pointer}
+.lcap rt{font-size:10px;color:#ffd2d2}.lcap .ln small{display:block;font-size:11px;color:#bbb;line-height:1.2}
+.vcap{position:static;margin:10px 0 0}.vcap .ln{font-size:20px}
 #fp{position:fixed;z-index:3;visibility:hidden;background:#000}
 body:not(.feedmode) #fp{visibility:hidden!important}
 #fp iframe,#fpv{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -159,7 +164,7 @@ nav.tabs button{font-size:10.5px}
 <body>
 <div class="feedtop"><div class="mark jp">響</div><b>Hibiki</b><button class="chip" id="lvchip" data-act="tab" data-k="me"></button></div>
 <div id="feed"></div>
-<div id="fp"><div id="fpv"></div><div id="fpn" style="display:none;position:absolute;inset:0"></div><button id="sndbtn" data-act="sound">🔇 Tap for sound</button></div>
+<div id="fp"><div id="fpv"></div><div id="fpn" style="display:none;position:absolute;inset:0"></div><div id="lcap" class="lcap"></div><button id="sndbtn" data-act="sound">🔇 Tap for sound</button></div>
 <div id="app"></div>
 <nav class="tabs"><div class="in" id="tabs"></div></nav>
 <div class="ov" id="vplayer"><div class="ov-in" id="vbody"></div></div>
@@ -168,7 +173,7 @@ nav.tabs button{font-size:10.5px}
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='12';
+const APP_VERSION='13';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -421,7 +426,7 @@ function slideHTML(it,i){
 function renderFeed(){
   const f=$('#feed');
   $('#lvchip').textContent=S.level!==null?LEVELS[S.level].k+' '+LEVELS[S.level].n:'';
-  if(ytFailed){hidePlayer();f.innerHTML=`<div class="loading"><div><b style="color:#fff">Can't reach YouTube</b><p>Check your internet connection, then try again.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Retry</button></div></div>`;return}
+  if(ytFailed&&!FEED.some(x=>x.nico)){hidePlayer();f.innerHTML=`<div class="loading"><div><b style="color:#fff">Can't reach YouTube</b><p>Check your internet connection, then try again.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Retry</button></div></div>`;return}
   if(!FEED.length){hidePlayer();f.innerHTML=`<div class="loading"><div><div class="spin"></div>${feedState==='empty'?'<b style="color:#fff">No Shorts found for this level</b><p>Try the Videos tab for longer videos at your level, or try again later.</p><button class="act" style="display:inline-flex;padding:10px 16px" data-act="retry">Try again</button>':'Finding Japanese Shorts for your level…'}</div></div>`;return}
   active=-1;f.innerHTML=FEED.map(slideHTML).join('');f.scrollTop=0;
   requestAnimationFrame(settle);
@@ -516,7 +521,7 @@ function openVid(i){
   const it=VIDS[i];if(!it)return;VCUR=it;hidePlayer();
   $('#vplayer').classList.add('open');
   $('#vbody').innerHTML=`<div class="ov-top"><button class="x" data-act="closevid">✕</button><div class="grow"><b style="font-size:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.titles[it.id]||it.src.name)}</b><div class="muted" style="font-size:12px">${esc(it.src.name)} · ${LEVELS[S.level].n}</div></div></div>
-  <div class="vwrap"><div id="vpv"></div></div>
+  <div class="vwrap"><div id="vpv"></div></div><div id="vcap" class="lcap vcap"></div>
   <div class="pad"><div class="acts light"><button class="act hot" data-act="vsave"><span class="i">＋</span>Save word</button><button class="act" data-act="vback5"><span class="i">↺</span>Back 5s</button><button class="act" data-act="slow"><span class="i">🐢</span><span class="rl">${S.rate===1?'Slower':S.rate+'×'}</span></button><a class="act" href="${watchUrl(it)}" target="_blank" rel="noopener"><span class="i">↗</span>${it.nico?'niconico':'YouTube'}</a></div>
   <p class="note">Japanese captions turn on automatically when the video has them. Tap CC in the player if they're off.</p></div>`;
   vpReady=false;
@@ -610,6 +615,24 @@ function basicWords(text){ // fallback when a video hasn't been processed yet
   return (text.match(/[一-鿿々〆]+[ぁ-ゖ]{0,3}|[ァ-ヺー]{2,}|[ぁ-ゖ]{2,}/g)||[]).filter((w,i,a)=>a.indexOf(w)===i).slice(0,16).map(w=>[w,'',w,'','n']);
 }
 let SW=null; // current save-word state
+/* live subtitles (shown when we have timed lines for a video, e.g. Niconico via Whisper) */
+const capNow=(rec,t)=>{if(!rec||!rec.cues)return -1;for(let i=0;i<rec.cues.length;i++){const c=rec.cues[i];if(t>=c[0]-0.15&&t<=c[1]+0.4)return i;if(c[0]>t)break}return -1};
+const capLine=c=>c[2].map(w=>furiW(w[0],w[1])).join('');
+const LC={feed:'',vid:''};
+function tickCaps(){
+  const box=$('#lcap');
+  if(box){let key='',html='';const it=FEED[active];
+    if(document.body.classList.contains('feedmode')&&it&&hasWords(it.id)&&!SW){
+      const rec=CAPS.get(it.id);if(rec===undefined)loadCap(it.id);
+      const i=capNow(rec,fpTime());if(i>=0){key=it.id+i;html=`<span class="ln" data-act="saveword" data-i="${active}">${capLine(rec.cues[i])}<small>tap to save a word</small></span>`}}
+    if(key!==LC.feed){LC.feed=key;box.innerHTML=html}}
+  const vb=$('#vcap');
+  if(vb){let key='',html='';
+    if(VCUR&&hasWords(VCUR.id)&&!SW){const rec=CAPS.get(VCUR.id);if(rec===undefined)loadCap(VCUR.id);
+      const i=capNow(rec,vpTime());if(i>=0){key=VCUR.id+i;html=`<span class="ln" data-act="vsave">${capLine(rec.cues[i])}<small>tap to save a word</small></span>`}}
+    if(key!==LC.vid){LC.vid=key;vb.innerHTML=html}}
+}
+setInterval(tickCaps,250);
 function openSaveSheet(it,t,resume){
   pendingSave={it,t,resume};SW={it,t,rec:null,ci:-1};
   openSheet(`<div id="swbody"><b style="font-size:19px">Words from this clip</b><div class="muted" style="margin-top:8px">Loading words…</div></div>`);
