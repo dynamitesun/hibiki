@@ -1,3 +1,20 @@
+niconico #料理 short: 60
+niconico #料理 long: 60
+niconico #簡単レシピ short: 50
+niconico #簡単レシピ long: 60
+niconico #あるある short: 45
+niconico #あるある long: 59
+niconico #街頭インタビュー short: 2
+niconico #街頭インタビュー long: 1
+niconico #日常 short: 57
+niconico #日常 long: 59
+niconico #ゲーム実況 short: 54
+niconico #ゲーム実況 long: 60
+niconico #雑談 short: 52
+niconico #雑談 long: 55
+niconico #切り抜き short: 50
+niconico #切り抜き long: 59
+niconico total: 779
 scQqkL4ZEKg [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
 scQqkL4ZEKg [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
 scQqkL4ZEKg [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
