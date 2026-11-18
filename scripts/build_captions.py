@@ -204,10 +204,14 @@ NICO_TAGS = {"料理": [1, 2], "簡単レシピ": [1, 2], "あるある": [1, 2]
              "日常": [2], "ゲーム実況": [2], "雑談": [2], "切り抜き": [2]}
 
 
+# synthetic voices / music / animation aren't natural speech
+SYNTH = re.compile(r"VOICEROID|VOICEVOX|ずんだ|重音テト|CeVIO|合成音声|ソフトウェアトーク|UTAU|ボカロ|VOCALOID|初音ミク|鏡音|巡音|MMD|結月ゆかり|琴葉|東北きりたん|ゆっくり|紲星|春日部つむぎ|四国めたん|音街ウナ|可不|歌ってみた|演奏してみた|踊ってみた|AIイラスト|AI生成|MAD|手描き|東方", re.I)
+
+
 def nico_search(tag, short):
     from urllib.parse import urlencode
-    p = {"q": tag, "targets": "tagsExact", "fields": "contentId,title,lengthSeconds,viewCounter,thumbnailUrl,startTime",
-         "filters[startTime][gte]": "2023-01-01T00:00:00+09:00", "_sort": "-viewCounter", "_limit": "60", "_context": "hibiki-app"}
+    p = {"q": tag, "targets": "tagsExact", "fields": "contentId,title,tags,lengthSeconds,viewCounter,thumbnailUrl,startTime",
+         "filters[startTime][gte]": "2023-01-01T00:00:00+09:00", "_sort": "-viewCounter", "_limit": "100", "_context": "hibiki-app"}
     if short:
         p["filters[lengthSeconds][lte]"] = "180"
     else:
@@ -216,7 +220,8 @@ def nico_search(tag, short):
     req = urllib.request.Request("https://snapshot.search.nicovideo.jp/api/v2/snapshot/video/contents/search?" + urlencode(p),
                                  headers={"User-Agent": "hibiki-app (github.com/dynamitesun/hibiki)"})
     j = json.load(urllib.request.urlopen(req, timeout=30))
-    return [v for v in j.get("data", []) if str(v.get("contentId", "")).startswith("sm")]  # channel videos often can't be embedded
+    return [v for v in j.get("data", []) if str(v.get("contentId", "")).startswith("sm")
+            and not SYNTH.search(v.get("tags", "") + " " + v.get("title", ""))]  # channel videos often can't be embedded
 
 
 def build_nico():
