@@ -56,6 +56,7 @@ def main():
             if not index.get(v["id"], {}).get("n") and index.get(v["id"], {}).get("tries", 0) < 2 and v["len"] <= 900]
     LOG.append(f"whisper: {len(todo)} videos waiting")
     bc.load_dict()
+    subprocess.run(["ffmpeg", "-version"], capture_output=True, check=True)  # stop early if it's missing
     model = WhisperModel(MODEL, device="cpu", compute_type="int8")
     done = 0
     for v in todo:
@@ -75,7 +76,7 @@ def main():
         rec = {"title": v["t"], "tw": bc.words(v["t"]), "cues": [[s, e, bc.words(line)] for s, e, line in cues], "src": "whisper"}
         json.dump(rec, open(os.path.join(bc.CAP, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
         old = index.get(vid, {})
-        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1}
+        index[vid] = {"lv": v["lv"], "short": v["short"], "n": len(cues), "tries": old.get("tries", 0) + (0 if cues or "ffmpeg" in err or "metadata_errors" in err else 1), "g": bool(bc.DICT), "w": 1}
         done += bool(cues)
         print(f"  {vid}: {len(cues)} lines in {int(time.time() - t1)}s  {v['t'][:40]}", flush=True)
         json.dump(index, open(idx_path, "w"), separators=(",", ":"))

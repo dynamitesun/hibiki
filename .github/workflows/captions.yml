@@ -31,7 +31,7 @@ jobs:
         with:
           path: ~/.cache/huggingface
           key: whisper-small
-      - run: pip install faster-whisper
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg && pip install faster-whisper
       - name: Make subtitles for Niconico videos (Whisper)
         run: python scripts/nico_whisper.py
         continue-on-error: true
