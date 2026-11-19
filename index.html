@@ -145,6 +145,11 @@ nav.tabs button{font-size:10.5px}
 .grades button{padding:12px 4px;border-radius:14px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:14px}
 .grades button small{display:block;font-weight:500;color:var(--muted);font-size:11px}
 .grades .ag{color:var(--red)}.grades .gd{color:var(--green)}
+.sh-line{font-size:24px;line-height:2;margin:6px 0 2px}.sh-line b{color:var(--red)}.sh-line rt{font-size:11px;color:var(--muted)}
+.sh-phase{font-weight:800;font-size:15px;margin-top:10px;min-height:22px}.sh-phase.you{color:var(--red)}
+.sh-bar{height:10px;border-radius:9px;background:var(--line);overflow:hidden;margin:8px 0 4px}.sh-bar i{display:block;height:100%;width:0;background:var(--red)}
+.sh-dots{display:flex;gap:6px;justify-content:center;margin-top:6px}.sh-dots span{width:9px;height:9px;border-radius:9px;background:var(--line)}.sh-dots span.on{background:var(--red)}
+.sh-ctl{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}
 .tg{padding:7px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);font-size:13px;font-weight:700;color:var(--muted)}
 .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
@@ -169,11 +174,12 @@ nav.tabs button{font-size:10.5px}
 <nav class="tabs"><div class="in" id="tabs"></div></nav>
 <div class="ov" id="vplayer"><div class="ov-in" id="vbody"></div></div>
 <div class="ov" id="review"><div class="ov-in" id="rbody"></div></div>
+<div class="ov" id="shadow"><div class="ov-in" id="sbody"></div></div>
 <div class="sheet-bg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
 <div id="toast"></div>
 <script>
 /* ================= error reporter ================= */
-const APP_VERSION='13';
+const APP_VERSION='14';
 function showErr(msg){try{let b=document.getElementById('errbar');if(!b){b=document.createElement('div');b.id='errbar';b.style.cssText='position:fixed;left:8px;right:8px;top:8px;z-index:99;background:#c63d2b;color:#fff;padding:12px 14px;border-radius:14px;font:13px/1.4 system-ui;box-shadow:0 6px 20px rgba(0,0,0,.3)';document.body.appendChild(b)}
 b.innerHTML='<b>Something went wrong</b> — screenshot this and send it to Claude:<div style="font-family:monospace;margin:6px 0;word-break:break-all">'+String(msg).replace(/</g,'&lt;').slice(0,400)+'</div><button style="background:#fff;color:#c63d2b;border-radius:8px;padding:6px 10px;font-weight:700" onclick="this.parentNode.remove()">Dismiss</button>'}catch(e){}}
 window.addEventListener('error',e=>{if(e.message)showErr(e.message+' @'+(e.lineno||'?'))});
@@ -557,8 +563,9 @@ function reviewV(){
   const d=due(),all=Object.values(S.saved);
   const next=all.map(w=>w.due).filter(t=>t>Date.now()).sort((a,b)=>a-b)[0];
   if(!all.length)return `<div class="card empty"><div class="jp">復習</div><b>No words saved yet</b><p class="muted">While watching, tap <b>＋ Save word</b> when you hear something you want to remember. It comes back here with the few seconds of video where you heard it.</p><button class="btn primary" data-act="tab" data-k="watch">Start watching</button></div>`;
-  return d.length?`<button class="card" style="width:100%;text-align:left;background:var(--red);color:#fff;border:0" data-act="startreview"><div style="font-size:44px;font-weight:700;line-height:1">${d.length}</div><div style="opacity:.85">word${d.length>1?'s':''} ready — each replays its clip</div><div style="margin-top:10px;font-weight:700">Start review →</div></button>`
-  :`<div class="card empty"><div class="jp">鈴</div><b>Nothing due right now</b><p class="muted">${next?'Next card in '+rel(next-Date.now())+'. ':''}Words come back just before you're likely to forget them.</p></div>`;
+  const nl=shadowQ().length,shc=nl?`<button class="card" style="width:100%;text-align:left;margin-top:12px" data-act="shadow"><div style="display:flex;gap:12px;align-items:center"><div class="jp" style="font-size:34px;color:var(--red)">復唱</div><div class="grow"><b style="font-size:17px">Repeat after the video</b><div class="muted" style="font-size:14px">${nl} saved line${nl>1?'s':''} · hear it, then say it out loud, 3 times each</div></div><span>→</span></div></button>`:'';
+  return (d.length?`<button class="card" style="width:100%;text-align:left;background:var(--red);color:#fff;border:0" data-act="startreview"><div style="font-size:44px;font-weight:700;line-height:1">${d.length}</div><div style="opacity:.85">word${d.length>1?'s':''} ready — each replays its clip</div><div style="margin-top:10px;font-weight:700">Start review →</div></button>`
+  :`<div class="card empty"><div class="jp">鈴</div><b>Nothing due right now</b><p class="muted">${next?'Next card in '+rel(next-Date.now())+'. ':''}Words come back just before you're likely to forget them.</p></div>`)+shc;
 }
 function rel(ms){const m=ms/6e4;if(m<60)return Math.max(1,Math.round(m))+' min';const h=m/60;if(h<24)return Math.round(h)+' h';const d=Math.round(h/24);return d+(d===1?' day':' days')}
 function families(){const f={};Object.values(S.saved).forEach(w=>[...new Set([...w.l].filter(isK))].forEach(k=>(f[k]=f[k]||[]).push(w)));return Object.entries(f).sort((a,b)=>b[1].length-a[1].length)}
@@ -697,6 +704,7 @@ function savedSheet(k){
   ${kanji.length?`<div class="seeds" style="margin-top:8px">${kanji.map(c=>`<a class="kchip" href="https://jisho.org/search/${encodeURIComponent(c)}%20%23kanji" target="_blank" rel="noopener"><b>${c}</b>kanji ↗</a>`).join('')}</div>`:''}
   <a class="btn wide" style="margin-top:10px" href="https://jisho.org/search/${encodeURIComponent(w.l)}" target="_blank" rel="noopener">📖 Jisho ↗</a>
   <button class="btn primary wide" style="margin-top:8px" data-act="playclip" data-k="${esc(w.l)}">▶ Replay the clip</button>
+  <button class="btn wide" style="margin-top:8px" data-act="shadow1" data-k="${esc(w.l)}">🗣 Repeat this line</button>
   <button class="btn wide" style="margin-top:8px;color:var(--red)" data-act="unsave" data-k="${esc(w.l)}">Remove</button>`);
 }
 
@@ -740,6 +748,66 @@ function playClip(w){
 
 function grade(g){const w=R.q[R.i],l=nextLvl(w,g);w.lvl=l;w.due=Date.now()+IV[l]*36e5;S.saved[w.l]=w;S.reviews++;save();if(g==='again')R.q.push(w);R.i++;R.shown=false;R.loaded=0;renderReview()}
 
+/* ================= repeat after the video (shadowing) ================= */
+const REPS=3;let SH=null;
+const shadowQ=()=>Object.values(S.saved).filter(w=>w.vid&&w.t1>w.t0).sort((a,b)=>(!!b.line-!!a.line)||((a.shadowed||0)-(b.shadowed||0)));
+function startShadow(one){
+  const q=one?[S.saved[one]].filter(Boolean):shadowQ().slice(0,15);if(!q.length)return;
+  closeSheet&&$('#sheetbg').classList.contains('open')&&closeSheet();hidePlayer();if(VCUR)closeVid();
+  SH={q,i:0,rep:0,phase:'load',rate:S.shRate||1,paused:false,p:null,kind:'',vid:'',t:0};
+  $('#shadow').classList.add('open');shItem();SH.tm=setInterval(shTick,120);
+}
+function closeShadow(){if(!SH)return;clearInterval(SH.tm);try{SH.p&&SH.p.destroy()}catch(e){}SH=null;$('#shadow').classList.remove('open');render()}
+function shLine(w){
+  if(!w.line)return `<div class="muted" style="font-size:15px;margin:10px 0">No subtitle line for this clip, so just copy the sounds you hear.<div class="jp" style="font-size:22px;color:var(--ink);margin-top:6px">${w.s&&w.r?furiW(w.s,w.r):esc(w.s||w.l)}</div></div>`;
+  const k=w.s||w.l,parts=w.line.split(k);
+  return `<div class="jp sh-line">${parts.map(esc).join(`<b>${w.r?furiW(k,w.r):esc(k)}</b>`)}</div>`;
+}
+function shItem(){
+  const w=SH.q[SH.i],b=$('#sbody');SH.rep=0;SH.phase='load';
+  b.innerHTML=`<div class="ov-top"><button class="x" data-act="sclose">✕</button><div class="grow" style="height:8px;border-radius:9px;background:var(--line);overflow:hidden"><i style="display:block;height:100%;background:var(--red);width:${SH.i/SH.q.length*100}%"></i></div><span class="muted" style="font-size:13px;font-weight:700">${SH.i+1}/${SH.q.length}</span></div>
+  <div class="vwrap"><div id="svid"></div></div>
+  <div class="pad"><div class="rv-card">${shLine(w)}
+   <div class="muted" style="font-size:15px"><span class="jp">${esc(w.l)}</span> — ${esc(w.note||'')}</div>
+   <div class="sh-phase" id="shph">Loading…</div><div class="sh-bar"><i id="shbar"></i></div>
+   <div class="sh-dots">${Array.from({length:REPS},(_,i)=>`<span id="shd${i}"></span>`).join('')}</div>
+   <div class="sh-ctl"><button class="tg" data-act="spause" id="shpb">⏸ Pause</button><button class="tg" data-act="sagain">↻ Again</button>
+   <button class="tg" data-act="srate">${SH.rate===1?'🐢 Slower':'🐇 Normal speed'}</button><button class="tg" data-act="snext">Next →</button></div>
+   <p class="muted" style="font-size:13px;margin:12px 0 0">Listen, then say the whole line out loud during the red bar, copying the rhythm and tone. Don't worry about understanding every word.</p></div></div>`;
+  const vwrap=b.querySelector('.vwrap');SH.p=null;
+  const ready=p=>{if(!SH||SH.q[SH.i]!==w)return;SH.p=p;try{p.unMute();p.setPlaybackRate(SH.rate)}catch(e){}shListen()};
+  if(w.nico){SH.kind='nico';new NicoPlayer(vwrap,w.vid,{muted:false,from:w.t0,onReady:ready,onError:()=>{toast('This clip can\'t play here — skipping');shNext()}});}
+  else{SH.kind='yt';whenYT(()=>{const p=new YT.Player('svid',{videoId:w.vid,playerVars:{playsinline:1,rel:0,modestbranding:1,start:Math.floor(w.t0),cc_load_policy:1,cc_lang_pref:'ja',hl:'ja'},events:{onReady:()=>ready(p)}})})}
+}
+function shSet(txt,you){const e=$('#shph');if(e){e.textContent=txt;e.className='sh-phase'+(you?' you':'')}}
+function shListen(){
+  const w=SH.q[SH.i];if(!SH.p)return;
+  SH.phase='listen';SH.t=Date.now();SH.until=SH.t+((w.t1-w.t0)/SH.rate+5)*1000;
+  try{SH.p.seekTo(w.t0,true);SH.p.playVideo()}catch(e){}
+  shSet(`👂 Listen (${SH.rep+1}/${REPS})`);$('#shbar').style.width='0';
+}
+function shTick(){
+  if(!SH||SH.paused||!SH.p)return;const w=SH.q[SH.i],now=Date.now();
+  if(SH.phase==='listen'){
+    let t=0;try{t=SH.p.getCurrentTime()}catch(e){}
+    const len=(w.t1-w.t0);if(now-SH.t>600&&t>=w.t0-1)$('#shbar').style.width=Math.min(100,Math.max(0,(t-w.t0)/len*100))+'%';
+    if((now-SH.t>600&&t>=w.t1)||now>SH.until){
+      try{SH.p.pauseVideo()}catch(e){}
+      SH.phase='you';SH.t=now;SH.gap=Math.max(1800,(len*1.25/SH.rate+0.8)*1000);shSet('🗣 Your turn — say it out loud',1);
+    }
+  }else if(SH.phase==='you'){
+    const f=(now-SH.t)/SH.gap;$('#shbar').style.width=Math.min(100,f*100)+'%';
+    if(f>=1){const d=$('#shd'+SH.rep);d&&d.classList.add('on');SH.rep++;
+      if(SH.rep<REPS)shListen();else{w.shadowed=(w.shadowed||0)+1;S.saved[w.l]=w;save();shNext()}}
+  }
+}
+function shNext(){
+  if(!SH)return;try{SH.p&&SH.p.destroy()}catch(e){}SH.p=null;SH.i++;
+  if(SH.i<SH.q.length)return shItem();
+  clearInterval(SH.tm);SH.phase='done';
+  $('#sbody').innerHTML=`<div class="ov-top"><button class="x" data-act="sclose">✕</button></div><div class="pad"><div class="card empty"><div class="jp">よくできました</div><b style="font-size:18px">Nice work</b><p class="muted">You repeated ${SH.q.length} line${SH.q.length>1?'s':''}, ${REPS} times each. Saying real lines out loud trains your ear and your mouth at the same time.</p><button class="btn primary" data-act="sclose">Done</button></div></div>`;
+}
+
 /* ================= events ================= */
 $('#feed').addEventListener('scroll',onFeedScroll,{passive:true});
 document.addEventListener('click',e=>{
@@ -776,6 +844,13 @@ document.addEventListener('click',e=>{
     case 'reset':openSheet(`<b style="font-size:18px">Remove everything?</b><p class="muted">This deletes your saved words and watch history on this device.</p><div class="row"><button class="btn grow" data-act="nosheet">Cancel</button><button class="btn primary grow" data-act="doreset">Reset</button></div>`);break;
     case 'doreset':S={...S,saved:{},seen:{},reviews:0};save();closeSheet();render();break;
     case 'startreview':startReview();break;
+    case 'shadow':startShadow();break;
+    case 'shadow1':startShadow(d.k);break;
+    case 'sclose':closeShadow();break;
+    case 'snext':if(SH)shNext();break;
+    case 'sagain':if(SH&&SH.p){SH.paused=false;$('#shpb').textContent='⏸ Pause';shListen()}break;
+    case 'spause':if(SH&&SH.p){SH.paused=!SH.paused;$('#shpb').textContent=SH.paused?'▶ Resume':'⏸ Pause';try{SH.paused?SH.p.pauseVideo():(SH.phase==='listen'?SH.p.playVideo():0)}catch(_){}if(!SH.paused){SH.t=Date.now();if(SH.phase==='listen')SH.until=SH.t+((SH.q[SH.i].t1-SH.q[SH.i].t0)/SH.rate+5)*1000}}break;
+    case 'srate':if(SH){SH.rate=SH.rate===1?0.75:1;S.shRate=SH.rate;save();try{SH.p&&SH.p.setPlaybackRate(SH.rate)}catch(_){}if(SH.kind==='nico'&&SH.rate!==1)toast('Slower speed only works on YouTube clips');el.textContent=SH.rate===1?'🐢 Slower':'🐇 Normal speed'}break;
     case 'closer':closeReview();break;
     case 'reveal':R.shown=true;renderReview();break;
     case 'rplay':playClip(R.q[R.i]);break;
@@ -783,7 +858,7 @@ document.addEventListener('click',e=>{
   }
 });
 document.addEventListener('keydown',e=>{if(tab!=='watch'||$('#sheetbg').classList.contains('open')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;const f=$('#feed');if(e.key==='ArrowDown'){e.preventDefault();f.scrollBy({top:f.clientHeight,behavior:'smooth'})}else if(e.key==='ArrowUp'){e.preventDefault();f.scrollBy({top:-f.clientHeight,behavior:'smooth'})}});
-window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(VCUR){closeVid();return true}if(R){closeReview();return true}if(tab!=='watch'&&S.level!==null){tab='watch';render();return true}return false};
+window.hibikiBack=()=>{if($('#sheetbg').classList.contains('open')){closeSheet();return true}if(SH){closeShadow();return true}if(VCUR){closeVid();return true}if(R){closeReview();return true}if(tab!=='watch'&&S.level!==null){tab='watch';render();return true}return false};
 render();
 setInterval(()=>{if(!R)renderTabs()},60000);
 </script>
