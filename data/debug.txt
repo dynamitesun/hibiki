@@ -7,19 +7,19 @@ niconico #あるある long: 34
 niconico #街頭インタビュー short: 1
 niconico #街頭インタビュー long: 1
 niconico #日常 short: 21
-niconico #日常 long: 51
+niconico #日常 long: 50
 niconico #ゲーム実況 short: 66
 niconico #ゲーム実況 long: 2
 niconico #切り抜き short: 72
 niconico #切り抜き long: 72
-niconico total: 521
-vRvBbODqRKY [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-vRvBbODqRKY [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-vRvBbODqRKY [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-vRvBbODqRKY [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-vRvBbODqRKY [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
-vRvBbODqRKY [transcript_api] RequestBlocked: 
-Could not retrieve a transcript for the video https://www.youtube.com/watch?v=vRvBbODqRKY! This is most likely caused by:
+niconico total: 520
+7qMNajE1YZ4 [default] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+7qMNajE1YZ4 [tv] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+7qMNajE1YZ4 [web_embedded] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+7qMNajE1YZ4 [mweb] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+7qMNajE1YZ4 [android_vr] from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  for tips on effectively exporting YouTube cookies
+7qMNajE1YZ4 [transcript_api] RequestBlocked: 
+Could not retrieve a transcript for the video https://www.youtube.com/watch?v=7qMNajE1YZ4! This is most likely caused by:
 
 YouTube is blocking requests from your IP. This usually is due to one of the following reasons:
 - You have done too many reque
@@ -45,7 +45,8 @@ YouTube is blocking requests from your IP. This usually is due to one of the fol
 - You have done too many reque
 YouTube is blocking subtitle downloads from this machine; skipping subtitles this run. Add a YT_COOKIES secret to fix.
 working method: []
-whisper: 260 videos waiting
+whisper: 212 videos waiting
   sm41962722 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
   sm42162723 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
-whisper: 31 videos got subtitles in 2408s
+  sm45667989 failed: You might want to use a VPN or a proxy server (with --proxy) to workaround.
+whisper: 26 videos got subtitles in 2438s
