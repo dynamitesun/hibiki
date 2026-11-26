@@ -45,5 +45,5 @@ YouTube is blocking requests from your IP. This usually is due to one of the fol
 - You have done too many reque
 YouTube is blocking subtitle downloads from this machine; skipping subtitles this run. Add a YT_COOKIES secret to fix.
 working method: []
-whisper: 113 videos waiting
-whisper: 10 videos got subtitles in 2445s
+whisper: 102 videos waiting
+whisper: 14 videos got subtitles in 2510s
